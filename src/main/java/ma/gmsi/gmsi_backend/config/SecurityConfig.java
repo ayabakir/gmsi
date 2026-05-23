@@ -1,6 +1,7 @@
 package ma.gmsi.gmsi_backend.config;
 
 import lombok.RequiredArgsConstructor;
+import ma.gmsi.gmsi_backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,20 +12,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-/*
- * SANS SPRING :
- * - Filtre Servlet manuel implémentant javax.servlet.Filter
- * - Vérification manuelle du token/session dans doFilter()
- * AVEC SPRING SECURITY :
- * - Configuration déclarative via SecurityFilterChain
- * - Chaîne de filtres gérée automatiquement par Spring
- */
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
@@ -41,7 +36,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
-                        .frameOptions(frame -> frame.disable()));
+                        .frameOptions(frame -> frame.disable()))
+                .addFilterBefore(jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
