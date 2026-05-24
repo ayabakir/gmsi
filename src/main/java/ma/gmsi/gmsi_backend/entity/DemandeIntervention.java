@@ -1,7 +1,7 @@
-package com.gmsi.entity;
+package ma.gmsi.gmsi_backend.entity;
 
-import com.gmsi.entity.enums.NiveauUrgence;
-import com.gmsi.entity.enums.StatutDemande;
+import ma.gmsi.gmsi_backend.entity.enums.NiveauUrgence;
+import ma.gmsi.gmsi_backend.entity.enums.StatutDemande;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

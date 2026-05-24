@@ -1,6 +1,6 @@
-package com.gmsi.entity;
+package ma.gmsi.gmsi_backend.entity;
 
-import com.gmsi.entity.enums.TypeMouvement;
+import ma.gmsi.gmsi_backend.entity.enums.TypeMouvement;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

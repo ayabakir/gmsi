@@ -1,6 +1,6 @@
-package com.gmsi.entity;
+package ma.gmsi.gmsi_backend.entity;
 
-import com.gmsi.entity.enums.NiveauSpecialite;
+import ma.gmsi.gmsi_backend.entity.enums.NiveauSpecialite;
 import jakarta.persistence.*;
 import lombok.*;
 

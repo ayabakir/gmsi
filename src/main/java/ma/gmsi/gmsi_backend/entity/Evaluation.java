@@ -1,6 +1,6 @@
-package com.gmsi.entity;
+package ma.gmsi.gmsi_backend.entity;
 
-import com.gmsi.entity.enums.NiveauDifficulte;
+import ma.gmsi.gmsi_backend.entity.enums.NiveauDifficulte;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

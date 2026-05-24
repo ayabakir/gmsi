@@ -1,6 +1,6 @@
-package com.gmsi.entity;
+package ma.gmsi.gmsi_backend.entity;
 
-import com.gmsi.entity.enums.TypeLocalisation;
+import ma.gmsi.gmsi_backend.entity.enums.TypeLocalisation;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,4 +1,4 @@
-package com.gmsi.entity;
+package ma.gmsi.gmsi_backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

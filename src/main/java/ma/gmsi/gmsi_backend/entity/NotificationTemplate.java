@@ -1,6 +1,6 @@
-package com.gmsi.entity;
+package ma.gmsi.gmsi_backend.entity;
 
-import com.gmsi.entity.enums.TypeNotification;
+import ma.gmsi.gmsi_backend.entity.enums.TypeNotification;
 import jakarta.persistence.*;
 import lombok.*;
 

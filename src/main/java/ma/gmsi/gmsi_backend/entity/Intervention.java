@@ -1,8 +1,8 @@
-package com.gmsi.entity;
+package ma.gmsi.gmsi_backend.entity;
 
-import com.gmsi.entity.enums.NiveauDifficulte;
-import com.gmsi.entity.enums.NiveauPriorite;
-import com.gmsi.entity.enums.StatutIntervention;
+import ma.gmsi.gmsi_backend.entity.enums.NiveauDifficulte;
+import ma.gmsi.gmsi_backend.entity.enums.NiveauPriorite;
+import ma.gmsi.gmsi_backend.entity.enums.StatutIntervention;
 import jakarta.persistence.*;
 import lombok.*;
 

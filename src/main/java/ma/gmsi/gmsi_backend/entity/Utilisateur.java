@@ -1,7 +1,7 @@
-package com.gmsi.entity;
+package ma.gmsi.gmsi_backend.entity;
 
-import com.gmsi.entity.enums.PreferenceNotif;
-import com.gmsi.entity.enums.Role;
+import ma.gmsi.gmsi_backend.entity.enums.PreferenceNotif;
+import ma.gmsi.gmsi_backend.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
