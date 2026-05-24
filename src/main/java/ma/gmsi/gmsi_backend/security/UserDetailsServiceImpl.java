@@ -7,15 +7,6 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-/*
- * SANS SPRING :
- * - Vérification manuelle en session HttpSession
- * - Comparaison mot de passe en clair dans la BDD
- * AVEC SPRING SECURITY :
- * - Interface UserDetailsService standard
- * - Spring gère l'encodage + la vérification automatiquement
- */
-
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -31,7 +22,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
-                user.getPassword(),
+                user.getMotDePasse(),
+                user.isActif(),   // ← Fix champ actif
+                true, true, true,
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }

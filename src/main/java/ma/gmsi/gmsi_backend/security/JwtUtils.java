@@ -2,6 +2,7 @@ package ma.gmsi.gmsi_backend.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -14,19 +15,21 @@ import java.util.Date;
  * AVEC JWT + SPRING :
  * - Token généré côté serveur, stocké côté client
  * - Stateless : Spring n'a pas besoin de mémoriser la session
- * - Chaque requête contient toutes les infos nécessaires dans le token
+ * - Chaque requête contient toutes les infos dans le token
+ * - Secret externalisé dans application.properties
  */
 
 @Component
 public class JwtUtils {
 
-    private final String SECRET_KEY =
-            "gmsi_secret_key_2026_very_long_secure_key_minimum_256_bits!!";
+    @Value("${gmsi.jwt.secret}")
+    private String secretKey;
 
-    private final long EXPIRATION_MS = 86400000; // 24h
+    @Value("${gmsi.jwt.expiration-ms}")
+    private long expirationMs;
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
     // Générer un token JWT
@@ -35,7 +38,7 @@ public class JwtUtils {
                 .subject(email)
                 .claim("role", role)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSigningKey())
                 .compact();
     }
