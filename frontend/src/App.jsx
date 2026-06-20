@@ -14,6 +14,10 @@ import Categories from './modules/referentiels/pages/Categories'
 import Localisations from './modules/referentiels/pages/Localisations'
 import Equipements from './modules/referentiels/pages/Equipements'
 
+// Admin — Comptes (Module A1)
+import Users from './modules/admin/pages/Users'
+import UserForm from './modules/admin/pages/UserForm'
+import UserSpecialites from './modules/admin/pages/UserSpecialites'
 export default function App() {
     const { user } = useAuth()
 
@@ -36,6 +40,11 @@ export default function App() {
                     <Layout />
                 </PrivateRoute>
             }>
+                <Route path="users"                  element={<Users />} />
+                <Route path="users/nouveau"          element={<UserForm />} />
+                <Route path="users/:id/modifier"     element={<UserForm />} />
+                <Route path="users/:id/specialites"  element={<UserSpecialites />} />
+
                 <Route path="categories"    element={<Categories />} />
                 <Route path="localisations" element={<Localisations />} />
                 <Route path="equipements"   element={<Equipements />} />
