@@ -3,11 +3,12 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
     LayoutDashboard, Settings, Package,
-    MapPin, Tag, Monitor, LogOut, Bell
+    MapPin, Tag, Monitor, LogOut, Bell, Users
 } from 'lucide-react'
 
 const menuAdmin = [
     { label: 'Dashboard',     path: '/admin/dashboard',    icon: LayoutDashboard },
+    { label: 'Utilisateurs',  path: '/admin/users',        icon: Users },
     { label: 'Catégories',    path: '/admin/categories',   icon: Tag },
     { label: 'Localisations', path: '/admin/localisations',icon: MapPin },
     { label: 'Équipements',   path: '/admin/equipements',  icon: Monitor },
