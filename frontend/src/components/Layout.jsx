@@ -19,6 +19,8 @@ const menuAdmin = [
 const menuResponsable = [
     { label: 'Dashboard',     path: '/responsable/dashboard', icon: LayoutDashboard },
     { label: 'Interventions', path: '/responsable/interventions', icon: Settings },
+    { label: 'Stock',         path: '/responsable/stock',     icon: Package },
+    { label: 'Mouvements',    path: '/responsable/mouvements', icon: Settings },
 ]
 
 const menuTechnicien = [

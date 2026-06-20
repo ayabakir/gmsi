@@ -1,3 +1,5 @@
+// gmsi-mono/backend/src/main/java/ma/gmsi/gmsi_backend/entity/MouvementStock.java
+
 package ma.gmsi.gmsi_backend.entity;
 
 import ma.gmsi.gmsi_backend.entity.enums.TypeMouvement;
@@ -40,6 +42,12 @@ public class MouvementStock {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_utilisateur", nullable = false)
     private Utilisateur utilisateur;
+
+    // Lien optionnel vers l'intervention à l'origine de la sortie (module A4 — Aya).
+    // Pas de @ManyToOne volontairement : on évite de coupler Module I2 (Stock)
+    // à l'entité Intervention du module A4. UUID brut, nullable.
+    @Column(name = "id_intervention")
+    private UUID idIntervention;
 
     @CreatedDate
     @Column(name = "date_mouvement", updatable = false)
