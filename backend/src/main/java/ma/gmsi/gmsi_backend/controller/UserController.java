@@ -48,13 +48,13 @@ public class UserController {
         return ResponseEntity.ok(userService.update(id, request));
     }
 
-    @PatchMapping("/{id}/activer")
+    @PutMapping("/{id}/activer")
     public ResponseEntity<Void> activer(@PathVariable UUID id) {
         userService.activer(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}/desactiver")
+    @PutMapping("/{id}/desactiver")
     public ResponseEntity<Void> desactiver(@PathVariable UUID id) {
         userService.desactiver(id);
         return ResponseEntity.noContent().build();
