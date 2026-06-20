@@ -14,6 +14,10 @@ import Categories from './modules/referentiels/pages/Categories'
 import Localisations from './modules/referentiels/pages/Localisations'
 import Equipements from './modules/referentiels/pages/Equipements'
 
+// Stock (Module I2)
+import Stock from './modules/stock/pages/Stock'
+import Mouvements from './modules/stock/pages/Mouvements'
+
 export default function App() {
     const { user } = useAuth()
 
@@ -39,7 +43,9 @@ export default function App() {
                 <Route path="categories"    element={<Categories />} />
                 <Route path="localisations" element={<Localisations />} />
                 <Route path="equipements"   element={<Equipements />} />
-                {/* Stock, Paramètres, Audit → à ajouter au fur et à mesure */}
+                <Route path="stock"         element={<Stock />} />
+                <Route path="mouvements"    element={<Mouvements />} />
+                {/* Paramètres, Audit → à ajouter au fur et à mesure */}
             </Route>
 
             {/* Routes RESPONSABLE — à compléter par Aya */}
@@ -48,7 +54,9 @@ export default function App() {
                     <Layout />
                 </PrivateRoute>
             }>
-                {/* modules Aya */}
+                <Route path="stock"      element={<Stock />} />
+                <Route path="mouvements" element={<Mouvements />} />
+                {/* autres modules Aya */}
             </Route>
 
             {/* Routes TECHNICIEN — à compléter par Aya */}
