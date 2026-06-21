@@ -6,6 +6,7 @@ import ma.gmsi.gmsi_backend.dto.request.CreateDemandeRequest;
 import ma.gmsi.gmsi_backend.dto.response.DemandeResponse;
 import ma.gmsi.gmsi_backend.entity.*;
 import ma.gmsi.gmsi_backend.entity.enums.NiveauUrgence;
+import ma.gmsi.gmsi_backend.entity.enums.Role;
 import ma.gmsi.gmsi_backend.entity.enums.StatutDemande;
 import ma.gmsi.gmsi_backend.exception.BadRequestException;
 import ma.gmsi.gmsi_backend.exception.ResourceNotFoundException;
@@ -69,6 +70,15 @@ public class DemandeServiceImpl implements DemandeService {
         }
 
         DemandeIntervention saved = demandeRepository.save(demande);
+
+        // Notifier tous les responsables qu'une nouvelle demande est à traiter
+        List<Utilisateur> responsables = userRepository.findByRole(Role.RESPONSABLE);
+        for (Utilisateur resp : responsables) {
+            notificationService.notifierChangementEtat(
+                    resp.getId(), "DEMANDE", saved.getId(),
+                    null, StatutDemande.EN_ATTENTE.name());
+        }
+
         return toResponse(saved);
     }
 
