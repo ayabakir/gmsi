@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
     LayoutDashboard, Settings, Package,
-    MapPin, Tag, Monitor, LogOut, Bell, Users
+    MapPin, Tag, Monitor, LogOut, Bell, Users, FileText
 } from 'lucide-react'
 
 const menuAdmin = [
@@ -18,6 +18,7 @@ const menuAdmin = [
 
 const menuResponsable = [
     { label: 'Dashboard',     path: '/responsable/dashboard', icon: LayoutDashboard },
+    { label: 'Demandes',      path: '/responsable/demandes',  icon: FileText },
     { label: 'Interventions', path: '/responsable/interventions', icon: Settings },
     { label: 'Stock',         path: '/responsable/stock',     icon: Package },
     { label: 'Mouvements',    path: '/responsable/mouvements', icon: Settings },
@@ -28,7 +29,7 @@ const menuTechnicien = [
 ]
 
 const menuEmploye = [
-    { label: 'Mes demandes',  path: '/employe/demandes', icon: LayoutDashboard },
+    { label: 'Mes demandes',  path: '/employe/demandes', icon: FileText },
 ]
 
 function getMenu(role) {

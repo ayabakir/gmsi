@@ -18,10 +18,18 @@ import Equipements from './modules/referentiels/pages/Equipements'
 import Stock from './modules/stock/pages/Stock'
 import Mouvements from './modules/stock/pages/Mouvements'
 
+// Employé — Demandes (Module A2)
+import MesDemandes from './modules/employe/pages/MesDemandes'
+import DemandeForm from './modules/employe/pages/DemandeForm'
+
+// Responsable — Demandes (Module A2)
+import DemandesResponsable from './modules/responsable/pages/DemandesResponsable'
+
 // Admin — Comptes (Module A1)
 import Users from './modules/admin/pages/Users'
 import UserForm from './modules/admin/pages/UserForm'
 import UserSpecialites from './modules/admin/pages/UserSpecialites'
+
 export default function App() {
     const { user } = useAuth()
 
@@ -57,15 +65,15 @@ export default function App() {
                 {/* Paramètres, Audit → à ajouter au fur et à mesure */}
             </Route>
 
-            {/* Routes RESPONSABLE — à compléter par Aya */}
+            {/* Routes RESPONSABLE */}
             <Route path="/responsable" element={
                 <PrivateRoute roles={['RESPONSABLE']}>
                     <Layout />
                 </PrivateRoute>
             }>
+                <Route path="demandes"   element={<DemandesResponsable />} />
                 <Route path="stock"      element={<Stock />} />
                 <Route path="mouvements" element={<Mouvements />} />
-                {/* autres modules Aya */}
             </Route>
 
             {/* Routes TECHNICIEN — à compléter par Aya */}
@@ -77,13 +85,14 @@ export default function App() {
                 {/* modules Aya */}
             </Route>
 
-            {/* Routes EMPLOYE — à compléter par Aya */}
+            {/* Routes EMPLOYE */}
             <Route path="/employe" element={
                 <PrivateRoute roles={['EMPLOYE']}>
                     <Layout />
                 </PrivateRoute>
             }>
-                {/* modules Aya */}
+                <Route path="demandes"          element={<MesDemandes />} />
+                <Route path="demandes/nouvelle" element={<DemandeForm />} />
             </Route>
 
             {/* 404 */}
