@@ -1,40 +1,41 @@
+// gmsi-mono/backend/src/main/java/ma/gmsi/gmsi_backend/config/DataLoader.java
+
 package ma.gmsi.gmsi_backend.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ma.gmsi.gmsi_backend.entity.NotificationTemplate;
 import ma.gmsi.gmsi_backend.entity.Parametre;
 import ma.gmsi.gmsi_backend.entity.Utilisateur;
 import ma.gmsi.gmsi_backend.entity.enums.PreferenceNotif;
 import ma.gmsi.gmsi_backend.entity.enums.Role;
+import ma.gmsi.gmsi_backend.entity.enums.TypeNotification;
+import ma.gmsi.gmsi_backend.repository.NotificationTemplateRepository;
 import ma.gmsi.gmsi_backend.repository.ParametreRepository;
 import ma.gmsi.gmsi_backend.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import ma.gmsi.gmsi_backend.entity.NotificationTemplate;
-import ma.gmsi.gmsi_backend.entity.enums.TypeNotification;
-import ma.gmsi.gmsi_backend.repository.NotificationTemplateRepository;
 
 /**
  * Initialise les données obligatoires au premier démarrage :
  *   - un compte ADMIN par défaut
  *   - les 5 paramètres système (coefficients de scoring + anonymat évaluation)
+ *   - les 11 templates de notification (8 standard + 3 responsable)
  *
  * Idempotent : ne recrée que ce qui n'existe pas déjà.
- * Étendre ce loader uniquement avec des données strictement nécessaires
- * au fonctionnement initial. Les jeux de test métier vont dans les modules concernés.
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataLoader implements CommandLineRunner {
 
-    private static final String ADMIN_EMAIL = "admin@gmsi.ma";
+    private static final String ADMIN_EMAIL    = "admin@gmsi.ma";
     private static final String ADMIN_PASSWORD = "Admin@2026";
 
-    private final UserRepository userRepository;
-    private final ParametreRepository parametreRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserRepository                 userRepository;
+    private final ParametreRepository            parametreRepository;
+    private final PasswordEncoder                passwordEncoder;
     private final NotificationTemplateRepository templateRepository;
 
     @Override
@@ -42,9 +43,13 @@ public class DataLoader implements CommandLineRunner {
         log.info("=== DataLoader : vérification des données initiales ===");
         initAdmin();
         initParametres();
-        log.info("=== DataLoader : terminé ===");
         initTemplates();
+        log.info("=== DataLoader : terminé ===");
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ADMIN
+    // ─────────────────────────────────────────────────────────────────────────
 
     private void initAdmin() {
         if (userRepository.existsByEmail(ADMIN_EMAIL)) {
@@ -61,15 +66,20 @@ public class DataLoader implements CommandLineRunner {
                 .preferenceNotif(PreferenceNotif.EMAIL)
                 .build();
         userRepository.save(admin);
-        log.warn("[!] Admin cree : {} / {} - A MODIFIER apres premiere connexion", ADMIN_EMAIL, ADMIN_PASSWORD);
+        log.warn("[!] Admin créé : {} / {} — À MODIFIER après première connexion",
+                ADMIN_EMAIL, ADMIN_PASSWORD);
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // PARAMÈTRES SYSTÈME
+    // ─────────────────────────────────────────────────────────────────────────
+
     private void initParametres() {
-        creerSiAbsent("COEFF_FACILE",        "1.0",  "Coefficient de difficulte FACILE (scoring techniciens)");
-        creerSiAbsent("COEFF_MOYEN",         "1.5",  "Coefficient de difficulte MOYEN (scoring techniciens)");
-        creerSiAbsent("COEFF_DIFFICILE",     "2.0",  "Coefficient de difficulte DIFFICILE (scoring techniciens)");
-        creerSiAbsent("COEFF_CRITIQUE",      "3.0",  "Coefficient de difficulte CRITIQUE (scoring techniciens)");
-        creerSiAbsent("ANONYMAT_EVALUATION", "true", "Si true, les techniciens ne voient pas l'auteur des evaluations");
+        creerSiAbsent("COEFF_FACILE",        "1.0",  "Coefficient de difficulté FACILE (scoring techniciens)");
+        creerSiAbsent("COEFF_MOYEN",         "1.5",  "Coefficient de difficulté MOYEN (scoring techniciens)");
+        creerSiAbsent("COEFF_DIFFICILE",     "2.0",  "Coefficient de difficulté DIFFICILE (scoring techniciens)");
+        creerSiAbsent("COEFF_CRITIQUE",      "3.0",  "Coefficient de difficulté CRITIQUE (scoring techniciens)");
+        creerSiAbsent("ANONYMAT_EVALUATION", "true", "Si true, les techniciens ne voient pas l'auteur des évaluations");
     }
 
     private void creerSiAbsent(String cle, String valeur, String description) {
@@ -77,15 +87,28 @@ public class DataLoader implements CommandLineRunner {
         parametreRepository.save(Parametre.builder()
                 .cle(cle).valeur(valeur).description(description)
                 .build());
-        log.info("[+] Parametre cree : {} = {}", cle, valeur);
+        log.info("[+] Paramètre créé : {} = {}", cle, valeur);
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // TEMPLATES DE NOTIFICATION
+    // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Initialise les 8 templates de notification standard.
+     * Initialise les 11 templates de notification.
      * Idempotent : ne recrée pas un template si son code existe déjà en BDD.
+     *
+     * 8 templates standard (employé / technicien) :
+     *   DEMANDE_RECUE, DEMANDE_ASSIGNEE, DEMANDE_REJETEE, MISSION_AFFECTEE,
+     *   FIN_INTERVENTION, EVALUATION_RECUE, SEUIL_STOCK_BAS, COMPTE_DESACTIVE
+     *
+     * 3 templates responsable (ajoutés à la demande d'Aya) :
+     *   DEMANDE_A_TRAITER, INTERVENTION_DEMARREE, INTERVENTION_TERMINEE_RESP
      */
     private void initTemplates() {
+
+        // ── Employé ──────────────────────────────────────────────────────────
+
         creerTemplateIfAbsent(
                 "DEMANDE_RECUE",
                 "Votre demande {refDemande} a été reçue",
@@ -112,20 +135,22 @@ public class DataLoader implements CommandLineRunner {
         );
 
         creerTemplateIfAbsent(
-                "MISSION_AFFECTEE",
-                "Nouvelle mission assignée — {refIntervention}",
-                "Bonjour {prenomTechnicien}, une nouvelle intervention " +
-                        "{refIntervention} vous a été assignée. " +
-                        "Équipement : {nomEquipement}. Date : {datePlanifiee}.",
-                TypeNotification.EMAIL
-        );
-
-        creerTemplateIfAbsent(
                 "FIN_INTERVENTION",
                 "Intervention {refIntervention} terminée",
                 "Bonjour {prenomEmploye}, l'intervention sur votre " +
                         "équipement {nomEquipement} est terminée. " +
                         "Merci de valider la clôture.",
+                TypeNotification.EMAIL
+        );
+
+        // ── Technicien ───────────────────────────────────────────────────────
+
+        creerTemplateIfAbsent(
+                "MISSION_AFFECTEE",
+                "Nouvelle mission assignée — {refIntervention}",
+                "Bonjour {prenomTechnicien}, une nouvelle intervention " +
+                        "{refIntervention} vous a été assignée. " +
+                        "Équipement : {nomEquipement}. Date : {datePlanifiee}.",
                 TypeNotification.EMAIL
         );
 
@@ -137,6 +162,8 @@ public class DataLoader implements CommandLineRunner {
                         "Note : {note}/5.",
                 TypeNotification.EMAIL
         );
+
+        // ── Système / Admin ──────────────────────────────────────────────────
 
         creerTemplateIfAbsent(
                 "SEUIL_STOCK_BAS",
@@ -156,7 +183,36 @@ public class DataLoader implements CommandLineRunner {
                 TypeNotification.EMAIL
         );
 
-        log.info("[DataLoader] Templates de notification initialisés.");
+        // ── Responsable — ajoutés à la demande d'Aya ────────────────────────
+
+        creerTemplateIfAbsent(
+                "DEMANDE_A_TRAITER",
+                "Nouvelle demande à traiter — {refDemande}",
+                "Bonjour, une nouvelle demande {refDemande} a été soumise " +
+                        "par {prenomEmploye} concernant : {descEquipement}. " +
+                        "Merci de la traiter dans les meilleurs délais.",
+                TypeNotification.EMAIL
+        );
+
+        creerTemplateIfAbsent(
+                "INTERVENTION_DEMARREE",
+                "Intervention {refIntervention} démarrée",
+                "Bonjour, le technicien {nomTechnicien} a démarré " +
+                        "l'intervention {refIntervention}. " +
+                        "Vous pouvez suivre l'avancement depuis votre tableau de bord.",
+                TypeNotification.EMAIL
+        );
+
+        creerTemplateIfAbsent(
+                "INTERVENTION_TERMINEE_RESP",
+                "Intervention {refIntervention} terminée — à valider",
+                "Bonjour, le technicien {nomTechnicien} a clôturé " +
+                        "l'intervention {refIntervention}. " +
+                        "Merci de valider la clôture depuis votre tableau de bord.",
+                TypeNotification.EMAIL
+        );
+
+        log.info("[DataLoader] {} templates de notification initialisés.", 11);
     }
 
     /**
