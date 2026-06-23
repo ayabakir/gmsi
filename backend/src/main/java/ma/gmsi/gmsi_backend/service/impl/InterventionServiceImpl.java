@@ -151,7 +151,14 @@ public class InterventionServiceImpl implements InterventionService {
         Utilisateur technicien = userRepository.findById(technicienId).orElseThrow();
         enregistrerHistorique(saved, ancien, StatutIntervention.EN_COURS, technicien, commentaire);
 
-        // TODO[A3-NOTIF-RESP]: notifier le responsable du démarrage (template INTERVENTION_DEMARREE à créer par Ikram)
+        // Notifier le responsable que l'intervention a démarré
+        notificationService.envoyer(
+                intervention.getResponsable().getId(),
+                "INTERVENTION_DEMARREE",
+                Map.of(
+                        "refIntervention", saved.getReference(),
+                        "nomTechnicien", technicien.getNom() + " " + technicien.getPrenom()
+                ));
 
         return toResponse(saved);
     }
@@ -186,7 +193,14 @@ public class InterventionServiceImpl implements InterventionService {
                         "refIntervention", saved.getReference()
                 ));
 
-        // TODO[A3-NOTIF-RESP]: notifier aussi le responsable (template INTERVENTION_TERMINEE_RESP à créer par Ikram)
+        // Notifier le responsable que l'intervention est terminée (à valider)
+        notificationService.envoyer(
+                intervention.getResponsable().getId(),
+                "INTERVENTION_TERMINEE_RESP",
+                Map.of(
+                        "refIntervention", saved.getReference(),
+                        "nomTechnicien", technicien.getNom() + " " + technicien.getPrenom()
+                ));
 
         return toResponse(saved);
     }

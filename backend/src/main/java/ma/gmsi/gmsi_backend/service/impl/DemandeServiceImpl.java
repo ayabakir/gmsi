@@ -6,6 +6,7 @@ import ma.gmsi.gmsi_backend.dto.request.CreateDemandeRequest;
 import ma.gmsi.gmsi_backend.dto.response.DemandeResponse;
 import ma.gmsi.gmsi_backend.entity.*;
 import ma.gmsi.gmsi_backend.entity.enums.NiveauUrgence;
+import ma.gmsi.gmsi_backend.entity.enums.Role;
 import ma.gmsi.gmsi_backend.entity.enums.StatutDemande;
 import ma.gmsi.gmsi_backend.exception.BadRequestException;
 import ma.gmsi.gmsi_backend.exception.ResourceNotFoundException;
@@ -81,7 +82,17 @@ public class DemandeServiceImpl implements DemandeService {
                         "descEquipement", equipement.getNom()
                 ));
 
-        // TODO[A2-NOTIF-RESP]: notifier les responsables (template DEMANDE_A_TRAITER à créer par Ikram)
+        // Notifier tous les responsables qu'une nouvelle demande est à traiter
+        for (Utilisateur resp : userRepository.findByRole(Role.RESPONSABLE)) {
+            notificationService.envoyer(
+                    resp.getId(),
+                    "DEMANDE_A_TRAITER",
+                    Map.of(
+                            "refDemande", saved.getReference(),
+                            "prenomEmploye", employe.getPrenom(),
+                            "descEquipement", equipement.getNom()
+                    ));
+        }
 
         return toResponse(saved);
     }
