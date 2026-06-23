@@ -24,7 +24,7 @@ public class FicheConnaissance {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_rapport_source", nullable = false)
+    @JoinColumn(name = "id_rapport_source", nullable = true)
     private RapportTechnique rapportSource;
 
     @ManyToOne(fetch = FetchType.LAZY)

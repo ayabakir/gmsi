@@ -1,56 +1,68 @@
-// src/main/java/ma/gmsi/gmsi_backend/service/FicheConnaissanceService.java
+// gmsi-mono/backend/src/main/java/ma/gmsi/gmsi_backend/service/FicheConnaissanceService.java
 package ma.gmsi.gmsi_backend.service;
+
+import ma.gmsi.gmsi_backend.dto.request.FicheConnaissanceRequest;
+import ma.gmsi.gmsi_backend.dto.response.FicheConnaissanceResponse;
 
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Service de gestion des fiches de connaissance générées à partir des
- * rapports d'intervention validés.
- *
- * <p>Exposé par le module Fiches de connaissance (Ikram), appelé par le
- * module Interventions/Rapports (Aya) chaque fois qu'un responsable valide
- * un rapport d'intervention, afin de capitaliser le savoir technique associé.</p>
- */
 public interface FicheConnaissanceService {
 
     /**
-     * Crée une fiche de connaissance à partir d'un rapport d'intervention
-     * qui vient d'être validé.
+     * Crée automatiquement une fiche de connaissance à partir d'un
+     * rapport technique validé. Appelée par le module Rapport et Clôture
+     * lorsqu'un RapportTechnique est marqué comme validé.
      *
-     * @param rapportId    identifiant du rapport d'intervention validé
-     * @param validateurId identifiant de l'utilisateur ayant validé le rapport
-     * @return identifiant de la fiche de connaissance créée
+     * Extrait automatiquement : la cause de la panne (causePanne du
+     * rapport) devient la solution, le type de panne est déduit de
+     * la catégorie de l'équipement concerné par l'intervention.
+     * Si une fiche existe déjà pour ce rapport (appel en double),
+     * retourne la fiche existante sans en créer une nouvelle.
+     *
+     * @param rapportId UUID du RapportTechnique source
+     * @return la fiche de connaissance créée (ou existante si déjà créée)
+     * @throws ma.gmsi.gmsi_backend.exception.ResourceNotFoundException
+     *         si le rapport n'existe pas
      */
-    UUID creerDepuisRapport(UUID rapportId, UUID validateurId);
+    FicheConnaissanceResponse creerDepuisRapport(UUID rapportId);
 
     /**
-     * Recherche les fiches de connaissance liées à un équipement, utile pour
-     * proposer des solutions déjà documentées lors d'une nouvelle intervention.
+     * Création manuelle par un administrateur.
      *
-     * @param equipementId identifiant de l'équipement concerné
-     * @return liste des fiches de connaissance correspondantes
+     * @param request données de la fiche à créer
+     * @return la fiche créée
      */
-    List<FicheConnaissanceDTO> rechercherParEquipement(UUID equipementId);
+    FicheConnaissanceResponse creerManuelle(FicheConnaissanceRequest request);
 
     /**
-     * Consulte le détail d'une fiche de connaissance.
+     * Recherche de fiches avec filtres optionnels (catégorie et/ou mot-clé).
      *
-     * @param ficheId identifiant de la fiche de connaissance
-     * @return détail de la fiche, ou null si elle n'existe pas
+     * @param categorieId filtre par catégorie (null = toutes)
+     * @param motCle      filtre sur typePanne, solution et motsCles (null = aucun filtre)
+     * @return liste des fiches correspondantes
      */
-    FicheConnaissanceDTO consulter(UUID ficheId);
+    List<FicheConnaissanceResponse> rechercher(UUID categorieId, String motCle);
 
     /**
-     * Représentation simplifiée d'une fiche de connaissance, utilisée comme
-     * type de retour en attendant le DTO définitif du module Fiches.
+     * Récupère une fiche par son identifiant.
+     *
+     * @param id identifiant UUID de la fiche
+     * @return la fiche trouvée
+     * @throws ma.gmsi.gmsi_backend.exception.ResourceNotFoundException si absente
      */
-    record FicheConnaissanceDTO(
-            UUID id,
-            UUID rapportId,
-            UUID equipementId,
-            String titre,
-            String contenu,
-            UUID auteurId
-    ) {}
+    FicheConnaissanceResponse getById(UUID id);
+
+    /**
+     * Retourne toutes les fiches de la base de connaissances.
+     */
+    List<FicheConnaissanceResponse> listerToutes();
+
+    /**
+     * Supprime une fiche par son identifiant.
+     *
+     * @param id identifiant UUID de la fiche à supprimer
+     * @throws ma.gmsi.gmsi_backend.exception.ResourceNotFoundException si absente
+     */
+    void supprimer(UUID id);
 }
