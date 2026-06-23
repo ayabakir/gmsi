@@ -54,6 +54,7 @@ public class NotificationController {
         notificationService.marquerToutesLues(principal.getId());
         return ResponseEntity.ok().build();
     }
+    /*
 
     // Endpoint temporaire — à supprimer après les tests
     @PostMapping("/test-envoi")
@@ -67,5 +68,5 @@ public class NotificationController {
         notificationService.envoyer(
                 principal.getId(), "DEMANDE_RECUE", variables);
         return ResponseEntity.ok("Notification envoyée (voir BDD et logs)");
-    }
+    }*/
 }
