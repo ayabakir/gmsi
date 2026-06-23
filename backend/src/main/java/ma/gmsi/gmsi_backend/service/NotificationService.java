@@ -1,66 +1,132 @@
-// src/main/java/ma/gmsi/gmsi_backend/service/NotificationService.java
+// gmsi-mono/backend/src/main/java/ma/gmsi/gmsi_backend/service/NotificationService.java
+
 package ma.gmsi.gmsi_backend.service;
 
+import ma.gmsi.gmsi_backend.dto.request.NotificationTemplateRequest;
+import ma.gmsi.gmsi_backend.dto.response.NotifCountResponse;
+import ma.gmsi.gmsi_backend.dto.response.NotificationResponse;
+import ma.gmsi.gmsi_backend.dto.response.NotificationTemplateResponse;
+
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * Service d'envoi et de gestion des notifications utilisateur.
+ * Contrat du service de notifications — MODULE I3.
  *
- * <p>Exposé par le module Notifications (Ikram), appelé par le module
- * Interventions/Fiches (Aya) à chaque transition d'état d'une entité métier
- * (par exemple : intervention créée, affectée, en cours, terminée, validée).</p>
+ * <p>Ce service est TRANSVERSE : il est appelé par tous les modules métier d'Aya
+ * (A2 Demande, A3 Intervention, A4 Rapport, A5 Scoring) via la méthode {@link #envoyer}.
+ *
+ * <p><strong>Règle absolue :</strong> {@link #envoyer} ne doit JAMAIS propager d'exception.
+ * Un échec d'envoi (SMTP down, push échoué) est un warning loggé, pas une erreur fatale.
+ * L'opération métier appelante (ex: création de demande) ne doit jamais être bloquée
+ * par un problème de notification.
  */
 public interface NotificationService {
 
     /**
-     * Notifie un utilisateur d'un changement d'état sur une entité métier
-     * (intervention, fiche, demande, etc.).
+     * Envoie une notification à un utilisateur selon ses préférences.
      *
-     * @param destinataireId identifiant de l'utilisateur à notifier
-     * @param entiteType     type de l'entité concernée (ex: "INTERVENTION", "FICHE")
-     * @param entiteId       identifiant de l'entité concernée
-     * @param ancienEtat     état précédent (peut être null si création)
-     * @param nouvelEtat     nouvel état atteint
+     * <p>Le template est récupéré par son {@code codeTemplate} depuis la base de données.
+     * Les variables sont substituées dans le corps et le sujet du template via un
+     * simple remplacement de chaînes ({@code {nomVariable} → valeur}).
+     *
+     * <p>La notification est toujours persistée en base (historique), indépendamment
+     * du succès de l'envoi email ou push.
+     *
+     * <p>Selon la {@code preferenceNotif} du destinataire :
+     * <ul>
+     *   <li>{@code EMAIL} → envoi email uniquement</li>
+     *   <li>{@code PUSH}  → envoi push web uniquement</li>
+     *   <li>{@code LES_DEUX} → email ET push web</li>
+     * </ul>
+     *
+     * <p><strong>⚠️ Cette méthode ne lève jamais d'exception.</strong>
+     * Toute erreur (destinataire introuvable, template manquant, SMTP down)
+     * est loggée en WARNING et silencieusement absorbée.
+     *
+     * @param destinataireId UUID de l'utilisateur destinataire (doit exister en BDD)
+     * @param codeTemplate   Code unique du template à utiliser
+     *                       (ex: {@code "DEMANDE_ASSIGNEE"}, {@code "MISSION_AFFECTEE"})
+     * @param variables      Map des variables à substituer dans le template.
+     *                       Les clés correspondent aux placeholders dans le template
+     *                       sans les accolades (ex: {@code {"nomTechnicien": "Ahmed",
+     *                       "refDemande": "DEM-001"}}).
+     *                       Peut être {@code null} ou vide si le template n'a pas de variables.
+     *
+     * @see ma.gmsi.gmsi_backend.entity.enums.PreferenceNotif
+     * @see ma.gmsi.gmsi_backend.entity.NotificationTemplate
      */
-    void notifierChangementEtat(UUID destinataireId, String entiteType, UUID entiteId,
-                                String ancienEtat, String nouvelEtat);
+    void envoyer(UUID destinataireId, String codeTemplate, Map<String, String> variables);
 
     /**
-     * Envoie une notification libre (message personnalisé) à un utilisateur.
+     * Retourne toutes les notifications de l'utilisateur connecté,
+     * triées de la plus récente à la plus ancienne.
      *
-     * @param destinataireId identifiant de l'utilisateur à notifier
-     * @param titre          titre court de la notification
-     * @param message        contenu détaillé de la notification
+     * @param userId UUID de l'utilisateur connecté (depuis UserPrincipal)
+     * @return liste des notifications
      */
-    void envoyerNotification(UUID destinataireId, String titre, String message);
+    List<NotificationResponse> getMesNotifications(UUID userId);
 
     /**
-     * Liste les notifications non lues d'un utilisateur, des plus récentes
-     * aux plus anciennes.
+     * Retourne le nombre de notifications non lues de l'utilisateur connecté.
+     * Utilisé par le badge dans le header React.
      *
-     * @param utilisateurId identifiant de l'utilisateur
-     * @return liste des notifications non lues
+     * @param userId UUID de l'utilisateur connecté
+     * @return DTO contenant le count
      */
-    List<NotificationDTO> consulterNonLues(UUID utilisateurId);
+    NotifCountResponse getNonLues(UUID userId);
 
     /**
-     * Marque une notification comme lue.
+     * Marque une notification spécifique comme lue.
+     * Vérifie que la notification appartient bien à l'utilisateur (sécurité).
      *
-     * @param notificationId identifiant de la notification
+     * @param notifId UUID de la notification à marquer
+     * @param userId  UUID de l'utilisateur connecté
+     * @return la notification mise à jour
+     * @throws ma.gmsi.gmsi_backend.exception.ResourceNotFoundException si notif introuvable
+     * @throws ma.gmsi.gmsi_backend.exception.BadRequestException si notif n'appartient pas à l'utilisateur
      */
-    void marquerCommeLue(UUID notificationId);
+    NotificationResponse marquerLue(UUID notifId, UUID userId);
 
     /**
-     * Représentation simplifiée d'une notification, utilisée comme type de
-     * retour en attendant le DTO définitif du module Notifications.
+     * Marque toutes les notifications non lues de l'utilisateur comme lues.
+     *
+     * @param userId UUID de l'utilisateur connecté
      */
-    record NotificationDTO(
-            UUID id,
-            UUID destinataireId,
-            String titre,
-            String message,
-            boolean lue,
-            String dateCreation // ISO-8601, en attendant le type définitif (Instant/LocalDateTime)
-    ) {}
+    void marquerToutesLues(UUID userId);
+
+    /**
+     * Crée un nouveau template de notification (réservé ADMIN).
+     *
+     * @param req DTO contenant code, sujet, corps et type
+     * @return le template créé
+     */
+    NotificationTemplateResponse creerTemplate(NotificationTemplateRequest req);
+
+    /**
+     * Liste tous les templates de notification disponibles.
+     *
+     * @return liste des templates
+     */
+    List<NotificationTemplateResponse> listerTemplates();
+
+    /**
+     * Met à jour la préférence de notification d'un utilisateur.
+     *
+     * @param userId     UUID de l'utilisateur connecté
+     * @param preference nouvelle préférence (EMAIL / PUSH / LES_DEUX)
+     */
+    void mettreAJourPreference(UUID userId, ma.gmsi.gmsi_backend.entity.enums.PreferenceNotif preference);
+
+    /**
+     * Enregistre un abonnement Push Web pour un utilisateur.
+     * L'abonnement est stocké en mémoire (à persister en BDD dans une version future).
+     *
+     * @param userId   UUID de l'utilisateur connecté
+     * @param endpoint URL de l'endpoint push du navigateur
+     * @param p256dh   Clé publique p256dh du navigateur
+     * @param auth     Secret d'authentification du navigateur
+     */
+    void abonnerPush(UUID userId, String endpoint, String p256dh, String auth);
 }
