@@ -25,6 +25,11 @@ import DemandeForm from './modules/employe/pages/DemandeForm'
 // Responsable — Demandes (Module A2)
 import DemandesResponsable from './modules/responsable/pages/DemandesResponsable'
 
+// Intervention (Module A3)
+import Interventions from './modules/responsable/pages/Interventions'
+import InterventionForm from './modules/responsable/pages/InterventionForm'
+import MesMissions from './modules/technicien/pages/MesMissions'
+
 // Admin — Comptes (Module A1)
 import Users from './modules/admin/pages/Users'
 import UserForm from './modules/admin/pages/UserForm'
@@ -71,18 +76,20 @@ export default function App() {
                     <Layout />
                 </PrivateRoute>
             }>
-                <Route path="demandes"   element={<DemandesResponsable />} />
+                <Route path="demandes"                element={<DemandesResponsable />} />
+                <Route path="interventions"           element={<Interventions />} />
+                <Route path="interventions/nouvelle"  element={<InterventionForm />} />
                 <Route path="stock"      element={<Stock />} />
                 <Route path="mouvements" element={<Mouvements />} />
             </Route>
 
-            {/* Routes TECHNICIEN — à compléter par Aya */}
+            {/* Routes TECHNICIEN */}
             <Route path="/technicien" element={
                 <PrivateRoute roles={['TECHNICIEN']}>
                     <Layout />
                 </PrivateRoute>
             }>
-                {/* modules Aya */}
+                <Route path="missions" element={<MesMissions />} />
             </Route>
 
             {/* Routes EMPLOYE */}
