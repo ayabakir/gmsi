@@ -6,7 +6,6 @@ import ma.gmsi.gmsi_backend.dto.request.CreateDemandeRequest;
 import ma.gmsi.gmsi_backend.dto.response.DemandeResponse;
 import ma.gmsi.gmsi_backend.entity.*;
 import ma.gmsi.gmsi_backend.entity.enums.NiveauUrgence;
-import ma.gmsi.gmsi_backend.entity.enums.Role;
 import ma.gmsi.gmsi_backend.entity.enums.StatutDemande;
 import ma.gmsi.gmsi_backend.exception.BadRequestException;
 import ma.gmsi.gmsi_backend.exception.ResourceNotFoundException;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -71,13 +71,17 @@ public class DemandeServiceImpl implements DemandeService {
 
         DemandeIntervention saved = demandeRepository.save(demande);
 
-        // Notifier tous les responsables qu'une nouvelle demande est à traiter
-        List<Utilisateur> responsables = userRepository.findByRole(Role.RESPONSABLE);
-        for (Utilisateur resp : responsables) {
-            notificationService.notifierChangementEtat(
-                    resp.getId(), "DEMANDE", saved.getId(),
-                    null, StatutDemande.EN_ATTENTE.name());
-        }
+        // Notifier l'employé que sa demande a bien été reçue
+        notificationService.envoyer(
+                employe.getId(),
+                "DEMANDE_RECUE",
+                Map.of(
+                        "prenomEmploye", employe.getPrenom(),
+                        "refDemande", saved.getReference(),
+                        "descEquipement", equipement.getNom()
+                ));
+
+        // TODO[A2-NOTIF-RESP]: notifier les responsables (template DEMANDE_A_TRAITER à créer par Ikram)
 
         return toResponse(saved);
     }
@@ -120,14 +124,19 @@ public class DemandeServiceImpl implements DemandeService {
                             + demande.getStatut() + ")");
         }
 
-        String ancienEtat = demande.getStatut().name();
         demande.setStatut(StatutDemande.ASSIGNEE);
         DemandeIntervention saved = demandeRepository.save(demande);
 
         // Notifier l'employé que sa demande est validée
-        notificationService.notifierChangementEtat(
-                demande.getEmploye().getId(), "DEMANDE", demande.getId(),
-                ancienEtat, StatutDemande.ASSIGNEE.name());
+        notificationService.envoyer(
+                demande.getEmploye().getId(),
+                "DEMANDE_ASSIGNEE",
+                Map.of(
+                        "prenomEmploye", demande.getEmploye().getPrenom(),
+                        "refDemande", demande.getReference(),
+                        "nomTechnicien", "à assigner",
+                        "datePlanifiee", "à planifier"
+                ));
 
         return toResponse(saved);
     }
@@ -143,14 +152,19 @@ public class DemandeServiceImpl implements DemandeService {
                             + demande.getStatut() + ")");
         }
 
-        String ancienEtat = demande.getStatut().name();
         demande.setStatut(StatutDemande.REJETEE);
         demande.setMotifRejet(motif);
         DemandeIntervention saved = demandeRepository.save(demande);
 
-        notificationService.notifierChangementEtat(
-                demande.getEmploye().getId(), "DEMANDE", demande.getId(),
-                ancienEtat, StatutDemande.REJETEE.name());
+        // Notifier l'employé que sa demande est rejetée
+        notificationService.envoyer(
+                demande.getEmploye().getId(),
+                "DEMANDE_REJETEE",
+                Map.of(
+                        "prenomEmploye", demande.getEmploye().getPrenom(),
+                        "refDemande", demande.getReference(),
+                        "motifRejet", motif
+                ));
 
         return toResponse(saved);
     }

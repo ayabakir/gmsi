@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -88,9 +90,15 @@ public class InterventionServiceImpl implements InterventionService {
         enregistrerHistorique(saved, null, StatutIntervention.PLANIFIEE, responsable, "Intervention créée");
 
         // Notifier le technicien qu'il a une nouvelle mission
-        notificationService.notifierChangementEtat(
-                technicien.getId(), "INTERVENTION", saved.getId(),
-                null, StatutIntervention.PLANIFIEE.name());
+        notificationService.envoyer(
+                technicien.getId(),
+                "MISSION_AFFECTEE",
+                Map.of(
+                        "prenomTechnicien", technicien.getPrenom(),
+                        "refIntervention", saved.getReference(),
+                        "nomEquipement", demande.getEquipement().getNom(),
+                        "datePlanifiee", formatDate(saved.getDatePlanifiee())
+                ));
 
         return toResponse(saved);
     }
@@ -143,10 +151,7 @@ public class InterventionServiceImpl implements InterventionService {
         Utilisateur technicien = userRepository.findById(technicienId).orElseThrow();
         enregistrerHistorique(saved, ancien, StatutIntervention.EN_COURS, technicien, commentaire);
 
-        // Notifier le responsable
-        notificationService.notifierChangementEtat(
-                intervention.getResponsable().getId(), "INTERVENTION", saved.getId(),
-                ancien.name(), StatutIntervention.EN_COURS.name());
+        // TODO[A3-NOTIF-RESP]: notifier le responsable du démarrage (template INTERVENTION_DEMARREE à créer par Ikram)
 
         return toResponse(saved);
     }
@@ -171,13 +176,17 @@ public class InterventionServiceImpl implements InterventionService {
         Utilisateur technicien = userRepository.findById(technicienId).orElseThrow();
         enregistrerHistorique(saved, ancien, StatutIntervention.TERMINEE, technicien, commentaire);
 
-        // Notifier le responsable ET l'employé (sa panne est réparée)
-        notificationService.notifierChangementEtat(
-                intervention.getResponsable().getId(), "INTERVENTION", saved.getId(),
-                ancien.name(), StatutIntervention.TERMINEE.name());
-        notificationService.notifierChangementEtat(
-                intervention.getDemande().getEmploye().getId(), "INTERVENTION", saved.getId(),
-                ancien.name(), StatutIntervention.TERMINEE.name());
+        // Notifier l'employé que sa panne est réparée
+        notificationService.envoyer(
+                intervention.getDemande().getEmploye().getId(),
+                "FIN_INTERVENTION",
+                Map.of(
+                        "prenomEmploye", intervention.getDemande().getEmploye().getPrenom(),
+                        "nomEquipement", intervention.getDemande().getEquipement().getNom(),
+                        "refIntervention", saved.getReference()
+                ));
+
+        // TODO[A3-NOTIF-RESP]: notifier aussi le responsable (template INTERVENTION_TERMINEE_RESP à créer par Ikram)
 
         return toResponse(saved);
     }
@@ -214,6 +223,12 @@ public class InterventionServiceImpl implements InterventionService {
     private String genererReference() {
         long n = interventionRepository.count() + 1;
         return String.format("INT-2026-%04d", n);
+    }
+
+    // Formate une date pour l'affichage dans les notifications (gère le cas null)
+    private String formatDate(LocalDateTime date) {
+        if (date == null) return "à planifier";
+        return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 
     private NiveauPriorite parsePriorite(String v) {
