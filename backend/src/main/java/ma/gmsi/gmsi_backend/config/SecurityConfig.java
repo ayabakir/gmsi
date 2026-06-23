@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/h2-console/**",
+                                "/api/internal/**",
                                 "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
