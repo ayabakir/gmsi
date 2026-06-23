@@ -5,84 +5,95 @@ import PrivateRoute from './components/PrivateRoute'
 import Layout from './components/Layout'
 
 // Auth
-import Login from './modules/auth/pages/Login'
+import Login        from './modules/auth/pages/Login'
 import Unauthorized from './modules/auth/pages/Unauthorized'
-import Register from './modules/auth/pages/Register'
+import Register     from './modules/auth/pages/Register'
 
 // Référentiels (Module I1)
-import Categories from './modules/referentiels/pages/Categories'
+import Categories   from './modules/referentiels/pages/Categories'
 import Localisations from './modules/referentiels/pages/Localisations'
-import Equipements from './modules/referentiels/pages/Equipements'
+import Equipements  from './modules/referentiels/pages/Equipements'
 
 // Stock (Module I2)
-import Stock from './modules/stock/pages/Stock'
+import Stock      from './modules/stock/pages/Stock'
 import Mouvements from './modules/stock/pages/Mouvements'
 
 // Admin — Comptes (Module A1)
-import Users from './modules/admin/pages/Users'
-import UserForm from './modules/admin/pages/UserForm'
+import Users           from './modules/admin/pages/Users'
+import UserForm        from './modules/admin/pages/UserForm'
 import UserSpecialites from './modules/admin/pages/UserSpecialites'
+
+// Notifications (Module I3) ✅
+import Notifications from './modules/notifications/pages/Notifications'
+
 export default function App() {
     const { user } = useAuth()
 
     return (
         <Routes>
-            {/* Public */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            {/* ── Public ── */}
+            <Route path="/login"        element={<Login />} />
+            <Route path="/register"     element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
 
             {/* Redirection racine selon rôle */}
             <Route path="/" element={
-                user ? <Navigate to={`/${user.role.toLowerCase()}/dashboard`} replace />
+                user
+                    ? <Navigate to={`/${user.role.toLowerCase()}/dashboard`} replace />
                     : <Navigate to="/login" replace />
             } />
 
-            {/* Routes ADMIN protégées */}
+            {/* ── ADMIN ── */}
             <Route path="/admin" element={
                 <PrivateRoute roles={['ADMIN']}>
                     <Layout />
                 </PrivateRoute>
             }>
-                <Route path="users"                  element={<Users />} />
-                <Route path="users/nouveau"          element={<UserForm />} />
-                <Route path="users/:id/modifier"     element={<UserForm />} />
-                <Route path="users/:id/specialites"  element={<UserSpecialites />} />
-
-                <Route path="categories"    element={<Categories />} />
-                <Route path="localisations" element={<Localisations />} />
-                <Route path="equipements"   element={<Equipements />} />
-                <Route path="stock"         element={<Stock />} />
-                <Route path="mouvements"    element={<Mouvements />} />
-                {/* Paramètres, Audit → à ajouter au fur et à mesure */}
+                <Route path="users"                 element={<Users />} />
+                <Route path="users/nouveau"         element={<UserForm />} />
+                <Route path="users/:id/modifier"    element={<UserForm />} />
+                <Route path="users/:id/specialites" element={<UserSpecialites />} />
+                <Route path="categories"            element={<Categories />} />
+                <Route path="localisations"         element={<Localisations />} />
+                <Route path="equipements"           element={<Equipements />} />
+                <Route path="stock"                 element={<Stock />} />
+                <Route path="mouvements"            element={<Mouvements />} />
+                {/* ✅ Page notifications accessible à l'admin */}
+                <Route path="notifications"         element={<Notifications />} />
             </Route>
 
-            {/* Routes RESPONSABLE — à compléter par Aya */}
+            {/* ── RESPONSABLE ── */}
             <Route path="/responsable" element={
                 <PrivateRoute roles={['RESPONSABLE']}>
                     <Layout />
                 </PrivateRoute>
             }>
-                <Route path="stock"      element={<Stock />} />
-                <Route path="mouvements" element={<Mouvements />} />
+                <Route path="stock"         element={<Stock />} />
+                <Route path="mouvements"    element={<Mouvements />} />
+                {/* ✅ Page notifications */}
+                <Route path="notifications" element={<Notifications />} />
                 {/* autres modules Aya */}
             </Route>
 
-            {/* Routes TECHNICIEN — à compléter par Aya */}
+            {/* ── TECHNICIEN ── */}
             <Route path="/technicien" element={
                 <PrivateRoute roles={['TECHNICIEN']}>
                     <Layout />
                 </PrivateRoute>
             }>
+                {/* ✅ Page notifications */}
+                <Route path="notifications" element={<Notifications />} />
                 {/* modules Aya */}
             </Route>
 
-            {/* Routes EMPLOYE — à compléter par Aya */}
+            {/* ── EMPLOYE ── */}
             <Route path="/employe" element={
                 <PrivateRoute roles={['EMPLOYE']}>
                     <Layout />
                 </PrivateRoute>
             }>
+                {/* ✅ Page notifications */}
+                <Route path="notifications" element={<Notifications />} />
                 {/* modules Aya */}
             </Route>
 

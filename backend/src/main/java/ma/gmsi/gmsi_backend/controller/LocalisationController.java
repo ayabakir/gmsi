@@ -28,13 +28,27 @@ public class LocalisationController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<LocalisationResponse>> findAll() {
         return ResponseEntity.ok(localisationService.findAll());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<LocalisationResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(localisationService.findById(id));
+    }
+
+    @GetMapping("/racines")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<LocalisationResponse>> findRacines() {
+        return ResponseEntity.ok(localisationService.findRacines());
+    }
+
+    @GetMapping("/{id}/enfants")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<LocalisationResponse>> findEnfants(@PathVariable UUID id) {
+        return ResponseEntity.ok(localisationService.findEnfants(id));
     }
 
     @PutMapping("/{id}")
@@ -49,13 +63,5 @@ public class LocalisationController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/racines")
-    public ResponseEntity<List<LocalisationResponse>> findRacines() {
-        return ResponseEntity.ok(localisationService.findRacines());
-    }
 
-    @GetMapping("/{id}/enfants")
-    public ResponseEntity<List<LocalisationResponse>> findEnfants(@PathVariable UUID id) {
-        return ResponseEntity.ok(localisationService.findEnfants(id));
-    }
 }

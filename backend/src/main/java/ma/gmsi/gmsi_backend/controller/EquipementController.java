@@ -28,13 +28,21 @@ public class EquipementController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<EquipementResponse>> findAll() {
         return ResponseEntity.ok(equipementService.findAll());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<EquipementResponse> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(equipementService.findById(id));
+    }
+
+    @GetMapping("/localisation/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<EquipementResponse>> findByLocalisation(@PathVariable UUID id) {
+        return ResponseEntity.ok(equipementService.findByLocalisation(id));
     }
 
     @PutMapping("/{id}")
@@ -49,8 +57,4 @@ public class EquipementController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/localisation/{id}")
-    public ResponseEntity<List<EquipementResponse>> findByLocalisation(@PathVariable UUID id) {
-        return ResponseEntity.ok(equipementService.findByLocalisation(id));
-    }
 }
