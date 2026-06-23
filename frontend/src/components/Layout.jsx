@@ -3,7 +3,11 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
     LayoutDashboard, Settings, Package,
+<<<<<<< HEAD
     MapPin, Tag, Monitor, LogOut, Users
+=======
+    MapPin, Tag, Monitor, LogOut, Bell, Users, FileText
+>>>>>>> 59ada3f0bbe444dd2466e35013ebe09804902e9b
 } from 'lucide-react'
 import NotifBadge from '../modules/notifications/components/NotifBadge'
 
@@ -18,7 +22,12 @@ const menuAdmin = [
 ]
 
 const menuResponsable = [
+<<<<<<< HEAD
     { label: 'Dashboard',     path: '/responsable/dashboard',    icon: LayoutDashboard },
+=======
+    { label: 'Dashboard',     path: '/responsable/dashboard', icon: LayoutDashboard },
+    { label: 'Demandes',      path: '/responsable/demandes',  icon: FileText },
+>>>>>>> 59ada3f0bbe444dd2466e35013ebe09804902e9b
     { label: 'Interventions', path: '/responsable/interventions', icon: Settings },
     { label: 'Stock',         path: '/responsable/stock',        icon: Package },
     { label: 'Mouvements',    path: '/responsable/mouvements',   icon: Settings },
@@ -29,7 +38,11 @@ const menuTechnicien = [
 ]
 
 const menuEmploye = [
+<<<<<<< HEAD
     { label: 'Mes demandes', path: '/employe/demandes', icon: LayoutDashboard },
+=======
+    { label: 'Mes demandes',  path: '/employe/demandes', icon: FileText },
+>>>>>>> 59ada3f0bbe444dd2466e35013ebe09804902e9b
 ]
 
 function getMenu(role) {
