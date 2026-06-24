@@ -1,5 +1,5 @@
 // gmsi-mono/frontend/src/modules/dashboard/api/dashboard.api.js
-import api from '../../../api/api'
+import api from '../../../api/axiosConfig'
 
 const BASE_URL = '/api/dashboard'
 

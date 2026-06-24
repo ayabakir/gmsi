@@ -1,10 +1,10 @@
 // gmsi-mono/frontend/src/modules/connaissances/pages/BaseConnaissances.jsx
 import { useEffect, useReducer, useState } from 'react'
 import { Search, BookOpen } from 'lucide-react'
-import { connaissancesApi } from '../api/connaissances.api'
-import api from '../../../api/axiosConfig'
-import FicheCard from '../components/FicheCard'
-import FicheDetailModal from '../components/FicheDetailModal'
+import { connaissancesApi } from '../api/connaissances.api.js'
+import api from '../../../api/axiosConfig.js'
+import FicheCard from '../components/FicheCard.jsx'
+import FicheDetailModal from '../components/FicheDetailModal.jsx'
 
 function reducer(state, action) {
     switch (action.type) {
