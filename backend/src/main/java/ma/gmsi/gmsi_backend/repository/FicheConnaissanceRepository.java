@@ -2,6 +2,8 @@
 package ma.gmsi.gmsi_backend.repository;
 
 import ma.gmsi.gmsi_backend.entity.FicheConnaissance;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,19 +16,20 @@ import java.util.UUID;
 @Repository
 public interface FicheConnaissanceRepository extends JpaRepository<FicheConnaissance, UUID> {
 
-    // Recherche par catégorie
+    @EntityGraph(attributePaths = {"motsCles", "categorie"})
     List<FicheConnaissance> findByCategorieId(UUID categorieId);
 
-    // Recherche par type de panne (insensible à la casse)
+    @EntityGraph(attributePaths = {"motsCles", "categorie"})
     List<FicheConnaissance> findByTypePanneContainingIgnoreCase(String typePanne);
 
-    // Recherche par mot-clé dans la collection motsCles
+    @EntityGraph(attributePaths = {"motsCles", "categorie"})
     @Query("SELECT DISTINCT f FROM FicheConnaissance f JOIN f.motsCles mc " +
             "WHERE LOWER(mc) LIKE LOWER(CONCAT('%', :motCle, '%'))")
     List<FicheConnaissance> findByMotCle(@Param("motCle") String motCle);
 
-    // Recherche combinée catégorie + mot-clé (les deux optionnels)
-    @Query("SELECT DISTINCT f FROM FicheConnaissance f JOIN f.motsCles mc " +
+    @EntityGraph(attributePaths = {"motsCles", "categorie"})
+    @Query("SELECT DISTINCT f FROM FicheConnaissance f " +
+            "LEFT JOIN f.motsCles mc " +
             "WHERE (:categorieId IS NULL OR f.categorie.id = :categorieId) " +
             "AND (:motCle IS NULL OR LOWER(mc) LIKE LOWER(CONCAT('%', :motCle, '%')) " +
             "     OR LOWER(f.typePanne) LIKE LOWER(CONCAT('%', :motCle, '%')) " +
@@ -35,6 +38,11 @@ public interface FicheConnaissanceRepository extends JpaRepository<FicheConnaiss
             @Param("categorieId") UUID categorieId,
             @Param("motCle") String motCle);
 
-    // Vérification doublon : une fiche existe-t-elle déjà pour ce rapport ?
+    @EntityGraph(attributePaths = {"motsCles", "categorie"})
+    Optional<FicheConnaissance> findById(UUID id);
+
+    @EntityGraph(attributePaths = {"motsCles", "categorie"})
+    List<FicheConnaissance> findAll();
+
     Optional<FicheConnaissance> findByRapportSourceId(UUID rapportId);
 }
