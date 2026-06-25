@@ -51,6 +51,12 @@ import BaseConnaissances from './modules/connaissances/pages/BaseConnaissances'
 import Parametres from './modules/administration/pages/Parametres'
 import AuditLog from './modules/administration/pages/AuditLog'
 
+// Rapports technicien (Module A4)
+import MesRapports from './modules/technicien/pages/MesRapports'
+
+// Scores techniciens (Module A5) — partagé responsable + admin
+import Scores from './modules/shared/pages/Scores'
+
 export default function App() {
     const { user } = useAuth()
 
@@ -100,6 +106,7 @@ export default function App() {
                 <Route path="dashboard" element={<DashboardAdmin />} />
                 <Route path="parametres" element={<Parametres />} />
                 <Route path="audit" element={<AuditLog />} />
+                <Route path="scores"                element={<Scores />} />
             </Route>
 
             {/* ── RESPONSABLE ── */}
@@ -115,6 +122,7 @@ export default function App() {
                 <Route path="mouvements"              element={<Mouvements />} />
                 <Route path="notifications"           element={<Notifications />} />
                 <Route path="dashboard" element={<DashboardResponsable />} />
+                <Route path="scores"                  element={<Scores />} />
             </Route>
 
             {/* ── TECHNICIEN ── */}
@@ -126,6 +134,7 @@ export default function App() {
                 <Route path="missions"      element={<MesMissions />} />
                 <Route path="notifications" element={<Notifications />} />
                 <Route path="connaissances" element={<BaseConnaissances />} />
+                <Route path="rapports"      element={<MesRapports />} />
             </Route>
 
             {/* ── EMPLOYE ── */}

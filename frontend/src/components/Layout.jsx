@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
     LayoutDashboard, Settings, Package, MapPin, Tag, Monitor,
-    LogOut, Users, FileText, Wrench, ScrollText, History, Bell
+    LogOut, Users, FileText, Wrench, ScrollText, History, Bell, Award
 } from 'lucide-react'
 import NotifBadge from '../modules/notifications/components/NotifBadge'
 
@@ -17,6 +17,7 @@ const menuAdmin = [
     { label: 'Mouvements',    path: '/admin/mouvements',    icon: History },
     { label: 'Audit',         path: '/admin/audit',         icon: ScrollText },
     { label: 'Paramètres',    path: '/admin/parametres',    icon: Settings },
+    { label: 'Scores',        path: '/admin/scores',        icon: Award },
     { label: 'Notifications', path: '/admin/notifications', icon: Bell },
 ]
 
@@ -26,11 +27,13 @@ const menuResponsable = [
     { label: 'Interventions', path: '/responsable/interventions', icon: Wrench },
     { label: 'Stock',         path: '/responsable/stock',         icon: Package },
     { label: 'Mouvements',    path: '/responsable/mouvements',    icon: History },
+    { label: 'Scores',        path: '/responsable/scores',        icon: Award },
     { label: 'Notifications', path: '/responsable/notifications', icon: Bell },
 ]
 
 const menuTechnicien = [
     { label: 'Mes missions',  path: '/technicien/missions',      icon: Wrench },
+    { label: 'Mes rapports',  path: '/technicien/rapports',      icon: FileText },
     { label: 'Notifications', path: '/technicien/notifications', icon: Bell },
 ]
 

@@ -33,4 +33,9 @@ public class DemandeResponse {
     private String localisationLibelle;
 
     private LocalDateTime dateCreation;
+
+
+    // Lien vers l'intervention (pour clôture + évaluation côté employé)
+    private UUID interventionId;
+
 }

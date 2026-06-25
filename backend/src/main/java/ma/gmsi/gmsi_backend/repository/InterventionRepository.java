@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @Repository
 public interface InterventionRepository extends JpaRepository<Intervention, UUID> {
@@ -19,4 +20,7 @@ public interface InterventionRepository extends JpaRepository<Intervention, UUID
     boolean existsByDemandeId(UUID demandeId);
 
     long count();
+
+    // Retrouver l'intervention liée à une demande (relation OneToOne)
+    Optional<Intervention> findByDemandeId(UUID demandeId);
 }
