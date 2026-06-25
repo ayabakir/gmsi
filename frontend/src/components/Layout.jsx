@@ -3,11 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
     LayoutDashboard, Settings, Package,
-<<<<<<< HEAD
-    MapPin, Tag, Monitor, LogOut, Users
-=======
-    MapPin, Tag, Monitor, LogOut, Bell, Users, FileText
->>>>>>> 59ada3f0bbe444dd2466e35013ebe09804902e9b
+    MapPin, Tag, Monitor, LogOut, Wrench, Users, FileText
 } from 'lucide-react'
 import NotifBadge from '../modules/notifications/components/NotifBadge'
 
@@ -22,27 +18,19 @@ const menuAdmin = [
 ]
 
 const menuResponsable = [
-<<<<<<< HEAD
-    { label: 'Dashboard',     path: '/responsable/dashboard',    icon: LayoutDashboard },
-=======
-    { label: 'Dashboard',     path: '/responsable/dashboard', icon: LayoutDashboard },
-    { label: 'Demandes',      path: '/responsable/demandes',  icon: FileText },
->>>>>>> 59ada3f0bbe444dd2466e35013ebe09804902e9b
-    { label: 'Interventions', path: '/responsable/interventions', icon: Settings },
-    { label: 'Stock',         path: '/responsable/stock',        icon: Package },
-    { label: 'Mouvements',    path: '/responsable/mouvements',   icon: Settings },
+    { label: 'Dashboard',     path: '/responsable/dashboard',     icon: LayoutDashboard },
+    { label: 'Demandes',      path: '/responsable/demandes',      icon: FileText },
+    { label: 'Interventions', path: '/responsable/interventions', icon: Wrench },
+    { label: 'Stock',         path: '/responsable/stock',         icon: Package },
+    { label: 'Mouvements',    path: '/responsable/mouvements',    icon: Settings },
 ]
 
 const menuTechnicien = [
-    { label: 'Mes missions', path: '/technicien/missions', icon: LayoutDashboard },
+    { label: 'Mes missions', path: '/technicien/missions', icon: Wrench },
 ]
 
 const menuEmploye = [
-<<<<<<< HEAD
-    { label: 'Mes demandes', path: '/employe/demandes', icon: LayoutDashboard },
-=======
-    { label: 'Mes demandes',  path: '/employe/demandes', icon: FileText },
->>>>>>> 59ada3f0bbe444dd2466e35013ebe09804902e9b
+    { label: 'Mes demandes', path: '/employe/demandes', icon: FileText },
 ]
 
 function getMenu(role) {
@@ -69,16 +57,23 @@ export default function Layout() {
         <div className="flex h-screen bg-gray-100">
 
             {/* ── Sidebar ── */}
-            <aside className="w-64 bg-[#1565C0] flex flex-col">
+            <aside className="w-64 bg-gradient-to-b from-[#1B7A5A] to-[#15634A] flex flex-col">
 
                 {/* Logo */}
-                <div className="px-6 py-5 border-b border-blue-700">
-                    <h1 className="text-white text-xl font-bold tracking-wide">
-                        GMSI
-                    </h1>
-                    <p className="text-blue-200 text-xs mt-1">
-                        Gestion des Interventions
-                    </p>
+                <div className="px-5 py-5 border-b border-white/10">
+                    <div className="flex items-center gap-2.5">
+                        <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/15">
+                            <Wrench className="text-white" size={18} />
+                        </div>
+                        <div>
+                            <h1 className="text-white text-lg font-bold leading-none tracking-wide">
+                                GMSI
+                            </h1>
+                            <p className="text-green-100/70 text-[11px] mt-1">
+                                Gestion des Interventions
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Menu */}
@@ -91,8 +86,8 @@ export default function Layout() {
                                 `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm
                                  font-medium transition-colors ${
                                     isActive
-                                        ? 'bg-white text-[#1565C0]'
-                                        : 'text-blue-100 hover:bg-blue-700'
+                                        ? 'bg-white text-[#1B7A5A] shadow-sm'
+                                        : 'text-green-50 hover:bg-white/10'
                                 }`
                             }
                         >
@@ -103,14 +98,14 @@ export default function Layout() {
                 </nav>
 
                 {/* User info + logout */}
-                <div className="px-4 py-4 border-t border-blue-700">
-                    <p className="text-blue-200 text-xs truncate">{user?.email}</p>
+                <div className="px-4 py-4 border-t border-white/10">
+                    <p className="text-green-100/70 text-xs truncate">{user?.email}</p>
                     <p className="text-white text-xs font-semibold mt-0.5">
                         {user?.role}
                     </p>
                     <button
                         onClick={handleLogout}
-                        className="mt-3 flex items-center gap-2 text-blue-200
+                        className="mt-3 flex items-center gap-2 text-green-100/80
                                    hover:text-white text-xs transition-colors"
                     >
                         <LogOut size={14} /> Déconnexion
@@ -121,17 +116,17 @@ export default function Layout() {
             {/* ── Contenu principal ── */}
             <div className="flex-1 flex flex-col overflow-hidden">
 
-                {/* Header — NotifBadge remplace l'ancien bouton Bell statique */}
-                <header className="bg-white border-b border-gray-200 px-6 py-3
+                {/* Header — NotifBadge dynamique (Module I3) */}
+                <header className="bg-white border-b border-slate-200 px-6 py-3
                                    flex items-center justify-between">
-                    <h2 className="text-[#546E7A] text-sm font-medium">
+                    <h2 className="text-slate-500 text-sm font-medium">
                         Bienvenue,{' '}
-                        <span className="text-[#1565C0] font-semibold">
+                        <span className="text-[#1B7A5A] font-semibold">
                             {user?.email}
                         </span>
                     </h2>
 
-                    {/* ✅ Badge dynamique Module I3 — remplace le <button Bell> statique */}
+                    {/* Badge dynamique Module I3 */}
                     <NotifBadge />
                 </header>
 
