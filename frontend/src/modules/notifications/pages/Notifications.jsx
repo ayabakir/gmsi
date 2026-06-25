@@ -71,7 +71,13 @@ export default function Notifications() {
     const [showTemplates, setShowTemplates] = useState(false);
     const [templates, setTemplates]         = useState([]);
     const [loadingTpl, setLoadingTpl]       = useState(false);
-    const [newTpl, setNewTpl] = useState({ code: CODES_TEMPLATES[0], sujet: '', corps: '' });
+    // ✅ type ajouté dans l'état initial
+    const [newTpl, setNewTpl] = useState({
+        code:  CODES_TEMPLATES[0],
+        sujet: '',
+        corps: '',
+        type:  'EMAIL',
+    });
     const [savingTpl, setSavingTpl] = useState(false);
 
     const showToast = useCallback((message, type = 'success') => {
@@ -102,7 +108,7 @@ export default function Notifications() {
     const handleMarquerLue = (id) => {
         marquerLue(id)
             .then(() => {
-                setNotifications(prev => prev.map(n => n.id === id ? { ...n, lue: true } : n));
+                setNotifications(prev => prev.map(n => n.id === id ? { ...n, lu: true } : n));
                 showToast('Notification marquée comme lue.');
             })
             .catch(() => showToast('Erreur lors de la mise à jour.', 'error'));
@@ -111,7 +117,7 @@ export default function Notifications() {
     const handleToutLire = () => {
         marquerToutLire()
             .then(() => {
-                setNotifications(prev => prev.map(n => ({ ...n, lue: true })));
+                setNotifications(prev => prev.map(n => ({ ...n, lu: true })));
                 showToast('Toutes les notifications marquées comme lues.');
             })
             .catch(() => showToast('Erreur lors de la mise à jour.', 'error'));
@@ -134,19 +140,20 @@ export default function Notifications() {
         createTemplate(newTpl)
             .then(created => {
                 setTemplates(prev => [...prev, created]);
-                setNewTpl({ code: CODES_TEMPLATES[0], sujet: '', corps: '' });
+                setNewTpl({ code: CODES_TEMPLATES[0], sujet: '', corps: '', type: 'EMAIL' });
                 showToast('Template créé avec succès.');
             })
             .catch(() => showToast('Erreur lors de la création.', 'error'))
             .finally(() => setSavingTpl(false));
     };
 
+    // ✅ Utilise n.lu (vrai nom colonne BDD)
     const notifsFiltrees = notifications.filter(n => {
-        if (filtre === 'NON_LUES') return !n.lue;
-        if (filtre === 'LUES')     return n.lue;
+        if (filtre === 'NON_LUES') return !n.lu;
+        if (filtre === 'LUES')     return n.lu;
         return true;
     });
-    const nonLuesCount = notifications.filter(n => !n.lue).length;
+    const nonLuesCount = notifications.filter(n => !n.lu).length;
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
@@ -156,7 +163,7 @@ export default function Notifications() {
 
             <div className="max-w-4xl mx-auto space-y-5">
 
-                {/* ── En-tête style Audit ── */}
+                {/* ── En-tête ── */}
                 <div className="bg-green-50 rounded-2xl border border-green-100 p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
@@ -177,7 +184,7 @@ export default function Notifications() {
                             <button
                                 onClick={fetchNotifications}
                                 className="p-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50
-                           text-gray-500 transition-colors"
+                                           text-gray-500 transition-colors"
                                 title="Rafraîchir"
                             >
                                 <RefreshCw size={15} />
@@ -187,7 +194,7 @@ export default function Notifications() {
                                 <button
                                     onClick={handleToutLire}
                                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#1B7A5A]
-                             text-[#1B7A5A] bg-white text-sm font-medium hover:bg-green-50 transition-colors"
+                                               text-[#1B7A5A] bg-white text-sm font-medium hover:bg-green-50 transition-colors"
                                 >
                                     <CheckCheck size={15} />
                                     Tout lire
@@ -197,7 +204,7 @@ export default function Notifications() {
                             <button
                                 onClick={() => setShowPref(!showPref)}
                                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B7A5A]
-                           text-white text-sm font-medium hover:bg-[#15634A] transition-colors"
+                                           text-white text-sm font-medium hover:bg-[#15634A] transition-colors"
                             >
                                 <Settings size={15} />
                                 Préférences
@@ -207,7 +214,7 @@ export default function Notifications() {
                                 <button
                                     onClick={() => setShowTemplates(!showTemplates)}
                                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-gray-200
-                             text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+                                               text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
                                 >
                                     <Plus size={15} />
                                     Templates
@@ -227,7 +234,7 @@ export default function Notifications() {
                                     key={p}
                                     onClick={() => setPreference(p)}
                                     className={`px-4 py-2 rounded-xl border text-sm font-medium transition-colors
-                               ${preference === p
+                                               ${preference === p
                                         ? 'bg-[#1B7A5A] text-white border-[#1B7A5A]'
                                         : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                                 >
@@ -246,7 +253,7 @@ export default function Notifications() {
                                 onClick={handleSavePref}
                                 disabled={savingPref}
                                 className="px-4 py-2 rounded-xl bg-[#1B7A5A] text-white text-sm font-medium
-                           hover:bg-[#15634A] disabled:opacity-60 transition-colors"
+                                           hover:bg-[#15634A] disabled:opacity-60 transition-colors"
                             >
                                 {savingPref ? 'Enregistrement...' : 'Enregistrer'}
                             </button>
@@ -259,55 +266,86 @@ export default function Notifications() {
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
                         <h2 className="text-sm font-semibold text-gray-700">Gestion des templates</h2>
 
-                        <div className="border border-dashed border-gray-200 rounded-xl p-4 space-y-3">
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Nouveau template</p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-xs text-gray-500 font-medium mb-1 block">Code</label>
-                                    <select
-                                        value={newTpl.code}
-                                        onChange={e => setNewTpl(p => ({ ...p, code: e.target.value }))}
-                                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800
-                               focus:outline-none focus:ring-2 focus:ring-[#1B7A5A]"
-                                    >
-                                        {CODES_TEMPLATES.map(c => <option key={c} value={c}>{c}</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="text-xs text-gray-500 font-medium mb-1 block">Sujet</label>
-                                    <input
-                                        type="text"
-                                        value={newTpl.sujet}
-                                        onChange={e => setNewTpl(p => ({ ...p, sujet: e.target.value }))}
-                                        placeholder="Sujet de la notification"
-                                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm
-                               focus:outline-none focus:ring-2 focus:ring-[#1B7A5A]"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="text-xs text-gray-500 font-medium mb-1 block">Corps du message</label>
-                                <textarea
-                                    value={newTpl.corps}
-                                    onChange={e => setNewTpl(p => ({ ...p, corps: e.target.value }))}
-                                    rows={3}
-                                    placeholder="Contenu du template..."
-                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm
-                             focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] resize-none"
-                                />
-                            </div>
-                            <div className="flex justify-end">
-                                <button
-                                    onClick={handleCreateTemplate}
-                                    disabled={savingTpl}
-                                    className="px-4 py-2 rounded-xl bg-[#1B7A5A] text-white text-sm font-medium
-                             hover:bg-[#15634A] disabled:opacity-60 transition-colors"
-                                >
-                                    {savingTpl ? 'Création...' : 'Créer le template'}
-                                </button>
-                            </div>
-                        </div>
+                        {/* Formulaire — seulement si un code libre existe */}
+                        {(() => {
+                            const codesExistants = templates.map(t => t.code)
+                            const codesLibres = CODES_TEMPLATES.filter(c => !codesExistants.includes(c))
 
+                            if (codesLibres.length === 0) return (
+                                <div className="border border-dashed border-gray-200 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-500">
+                                        ✅ Tous les templates sont déjà configurés.
+                                    </p>
+                                </div>
+                            )
+
+                            return (
+                                <div className="border border-dashed border-gray-200 rounded-xl p-4 space-y-3">
+                                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                        Nouveau template ({codesLibres.length} code{codesLibres.length > 1 ? 's' : ''} disponible{codesLibres.length > 1 ? 's' : ''})
+                                    </p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-xs text-gray-500 font-medium mb-1 block">Code</label>
+                                            <select
+                                                value={newTpl.code}
+                                                onChange={e => setNewTpl(p => ({ ...p, code: e.target.value }))}
+                                                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800
+                                           focus:outline-none focus:ring-2 focus:ring-[#1B7A5A]"
+                                            >
+                                                {codesLibres.map(c => <option key={c} value={c}>{c}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-500 font-medium mb-1 block">Sujet</label>
+                                            <input
+                                                type="text"
+                                                value={newTpl.sujet}
+                                                onChange={e => setNewTpl(p => ({ ...p, sujet: e.target.value }))}
+                                                placeholder="Sujet de la notification"
+                                                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm
+                                           focus:outline-none focus:ring-2 focus:ring-[#1B7A5A]"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-500 font-medium mb-1 block">Type</label>
+                                            <select
+                                                value={newTpl.type}
+                                                onChange={e => setNewTpl(p => ({ ...p, type: e.target.value }))}
+                                                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800
+                                           focus:outline-none focus:ring-2 focus:ring-[#1B7A5A]"
+                                            >
+                                                <option value="EMAIL">Email</option>
+                                                <option value="PUSH_WEB">Push Web</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-gray-500 font-medium mb-1 block">Corps du message</label>
+                                            <textarea
+                                                value={newTpl.corps}
+                                                onChange={e => setNewTpl(p => ({ ...p, corps: e.target.value }))}
+                                                rows={3}
+                                                placeholder="Contenu du template..."
+                                                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm
+                                           focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] resize-none"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <button
+                                            onClick={handleCreateTemplate}
+                                            disabled={savingTpl}
+                                            className="px-4 py-2 rounded-xl bg-[#1B7A5A] text-white text-sm font-medium
+                                       hover:bg-[#15634A] disabled:opacity-60 transition-colors"
+                                        >
+                                            {savingTpl ? 'Création...' : 'Créer le template'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )
+                        })()}
+
+                        {/* Liste templates existants */}
                         {loadingTpl ? (
                             <p className="text-sm text-gray-500 text-center py-4">Chargement...</p>
                         ) : templates.length === 0 ? (
@@ -316,11 +354,19 @@ export default function Notifications() {
                             <div className="space-y-2">
                                 {templates.map((tpl, i) => (
                                     <div key={tpl.id ?? i} className="border border-gray-100 rounded-xl p-3">
-                    <span className="text-xs font-bold text-[#1B7A5A] bg-green-50 px-2 py-0.5 rounded-lg">
-                      {tpl.code}
-                    </span>
-                                        <p className="text-sm font-medium text-gray-700 mt-1">{tpl.sujet}</p>
-                                        <p className="text-xs text-gray-500 mt-1">{tpl.corps}</p>
+                                        <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-bold text-[#1B7A5A] bg-green-50 px-2 py-0.5 rounded-lg">
+                                {tpl.code}
+                            </span>
+                                            <span className={`text-xs px-2 py-0.5 rounded-lg font-medium
+                                ${tpl.type === 'EMAIL'
+                                                ? 'bg-blue-50 text-blue-600'
+                                                : 'bg-purple-50 text-purple-600'}`}>
+                                {tpl.type === 'EMAIL' ? 'Email' : 'Push Web'}
+                            </span>
+                                        </div>
+                                        <p className="text-sm font-medium text-gray-700">{tpl.sujet}</p>
+                                        <p className="text-xs text-gray-500 mt-1 font-mono">{tpl.corps}</p>
                                     </div>
                                 ))}
                             </div>
@@ -339,7 +385,7 @@ export default function Notifications() {
                             key={f.key}
                             onClick={() => setFiltre(f.key)}
                             className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors
-                          ${filtre === f.key
+                                        ${filtre === f.key
                                 ? 'bg-[#1B7A5A] text-white shadow-sm'
                                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
                         >
@@ -348,7 +394,7 @@ export default function Notifications() {
                     ))}
                 </div>
 
-                {/* ── Liste ── */}
+                {/* ── Liste notifications ── */}
                 {loading ? (
                     <Skeleton />
                 ) : erreur ? (

@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 import Layout from './components/Layout'
 
+import './api/axiosConfig.js'
 // Auth
 import Login        from './modules/auth/pages/Login'
 import Unauthorized from './modules/auth/pages/Unauthorized'
@@ -54,6 +55,16 @@ import AuditLog from './modules/administration/pages/AuditLog'
 export default function App() {
     const { user } = useAuth()
 
+    function getRoleHome(role) {
+        switch (role) {
+            case 'ADMIN':       return '/admin/dashboard'
+            case 'RESPONSABLE': return '/responsable/dashboard'
+            case 'TECHNICIEN':  return '/technicien/missions'
+            case 'EMPLOYE':     return '/employe/demandes'
+            default:            return '/login'
+        }
+    }
+
     return (
         <Routes>
 
@@ -67,7 +78,7 @@ export default function App() {
             {/* Redirection racine selon rôle */}
             <Route path="/" element={
                 user
-                    ? <Navigate to={`/${user.role.toLowerCase()}/dashboard`} replace />
+                    ? <Navigate to={getRoleHome(user.role)} replace />
                     : <Navigate to="/login" replace />
             } />
 

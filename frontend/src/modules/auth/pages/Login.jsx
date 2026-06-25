@@ -22,7 +22,13 @@ export default function Login() {
             const response = await axios.post("/api/auth/login", { email, password });
             const { token, role, email: userEmail } = response.data;
             login(token, role, userEmail);
-            navigate(`/${role.toLowerCase()}/dashboard`);
+            const destinations = {
+                ADMIN:       '/admin/dashboard',
+                RESPONSABLE: '/responsable/dashboard',
+                TECHNICIEN:  '/technicien/missions',
+                EMPLOYE:     '/employe/demandes',
+            }
+            navigate(destinations[response.data.role] ?? '/login')
         } catch (err) {
             if (err.response?.status === 401) {
                 setError("Email ou mot de passe incorrect");
