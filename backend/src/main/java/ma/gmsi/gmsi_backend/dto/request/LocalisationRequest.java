@@ -25,4 +25,6 @@ public class LocalisationRequest {
 
     // Optionnel : null = racine (ex: Bâtiment)
     private UUID parentId;
+
+    private String description;
 }

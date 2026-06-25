@@ -133,7 +133,9 @@ public class LocalisationServiceImpl implements LocalisationService {
         LocalisationResponse.LocalisationResponseBuilder builder = LocalisationResponse.builder()
                 .id(localisation.getId())
                 .libelle(localisation.getLibelle())
-                .type(localisation.getType());
+                .type(localisation.getType())
+                .description(localisation.getDescription())
+                .cheminComplet(buildChemin(localisation));
 
         if (localisation.getParent() != null) {
             builder.parentId(localisation.getParent().getId());
@@ -141,7 +143,8 @@ public class LocalisationServiceImpl implements LocalisationService {
         }
 
         if (withEnfants) {
-            List<LocalisationResponse> enfants = localisationRepository.findByParentId(localisation.getId())
+            List<LocalisationResponse> enfants = localisationRepository
+                    .findByParentId(localisation.getId())
                     .stream()
                     .map(child -> toResponse(child, true))
                     .collect(Collectors.toList());
@@ -149,5 +152,12 @@ public class LocalisationServiceImpl implements LocalisationService {
         }
 
         return builder.build();
+    }
+
+    private String buildChemin(Localisation loc) {
+        if (loc.getParent() == null) {
+            return loc.getLibelle();
+        }
+        return buildChemin(loc.getParent()) + " → " + loc.getLibelle();
     }
 }

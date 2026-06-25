@@ -1,5 +1,4 @@
-// gmsi-mono/frontend/src/modules/notifications/api/notifications.api.js
-
+// src/modules/notifications/api/notifications.api.js
 import axios from 'axios';
 
 const BASE = '/api/notifications';
@@ -7,17 +6,21 @@ const BASE = '/api/notifications';
 export const getMesNotifications = () =>
     axios.get(`${BASE}/mes-notifications`).then(r => r.data);
 
-export const getNonLues = () =>
+export const getNonLuesCount = () =>
     axios.get(`${BASE}/non-lues/count`).then(r => r.data);
 
 export const marquerLue = (id) =>
     axios.put(`${BASE}/${id}/lue`).then(r => r.data);
 
-export const marquerToutesLues = () =>
-    axios.put(`${BASE}/tout-lire`);
+export const marquerToutLire = () =>
+    axios.put(`${BASE}/tout-lire`).then(r => r.data);
 
-export const subscribePush = (subscription) =>
-    axios.post('/api/push/subscribe', subscription);
+export const updatePreferencesNotif = (preference) =>
+    axios.put('/api/user/preferences-notif', { preference }).then(r => r.data);
 
-export const updatePreference = (preference) =>
-    axios.put('/api/user/preferences-notif', { preference });
+// ADMIN uniquement
+export const getTemplates = () =>
+    axios.get('/api/admin/notifications/templates').then(r => r.data);
+
+export const createTemplate = (data) =>
+    axios.post('/api/admin/notifications/templates', data).then(r => r.data);

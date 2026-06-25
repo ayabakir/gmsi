@@ -1,75 +1,76 @@
-// gmsi-mono/frontend/src/modules/notifications/components/NotifItem.jsx
+// src/modules/notifications/components/NotifItem.jsx
+import { Check } from 'lucide-react';
 
-import React from 'react';
-import { Mail, Bell } from 'lucide-react';
+const TYPE_STYLES = {
+    DEMANDE_RECUE:              { dot: 'bg-blue-400',    label: 'Demande reçue',         bg: 'bg-blue-50'   },
+    DEMANDE_ASSIGNEE:           { dot: 'bg-indigo-400',  label: 'Demande assignée',       bg: 'bg-indigo-50' },
+    DEMANDE_REJETEE:            { dot: 'bg-red-400',     label: 'Demande rejetée',        bg: 'bg-red-50'    },
+    MISSION_AFFECTEE:           { dot: 'bg-purple-400',  label: 'Mission affectée',       bg: 'bg-purple-50' },
+    FIN_INTERVENTION:           { dot: 'bg-[#1B7A5A]',  label: 'Fin intervention',       bg: 'bg-green-50'  },
+    EVALUATION_RECUE:           { dot: 'bg-yellow-400',  label: 'Évaluation reçue',       bg: 'bg-yellow-50' },
+    SEUIL_STOCK_BAS:            { dot: 'bg-orange-400',  label: 'Stock bas',              bg: 'bg-orange-50' },
+    COMPTE_DESACTIVE:           { dot: 'bg-gray-400',    label: 'Compte désactivé',       bg: 'bg-gray-50'   },
+    DEMANDE_A_TRAITER:          { dot: 'bg-cyan-400',    label: 'À traiter',              bg: 'bg-cyan-50'   },
+    INTERVENTION_DEMARREE:      { dot: 'bg-teal-400',    label: 'Intervention démarrée',  bg: 'bg-teal-50'   },
+    INTERVENTION_TERMINEE_RESP: { dot: 'bg-emerald-500', label: 'Intervention terminée',  bg: 'bg-emerald-50'},
+};
 
-/**
- * Formate une date en texte relatif français sans dépendance externe.
- * Ex: "Il y a 2 heures", "Il y a 3 jours"
- */
-function formatRelative(dateStr) {
+const DEFAULT_STYLE = { dot: 'bg-gray-300', label: 'Notification', bg: 'bg-gray-50' };
+
+function formatDate(dateStr) {
     if (!dateStr) return '';
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours   = Math.floor(diff / 3600000);
-    const days    = Math.floor(diff / 86400000);
-
-    if (minutes < 1)  return "À l'instant";
-    if (minutes < 60) return `Il y a ${minutes} min`;
-    if (hours < 24)   return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;
-    if (days < 30)    return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
-    return new Date(dateStr).toLocaleDateString('fr-FR');
+    const d = new Date(dateStr);
+    const diffMin = Math.floor((new Date() - d) / 60000);
+    if (diffMin < 1)  return "À l'instant";
+    if (diffMin < 60) return `Il y a ${diffMin} min`;
+    const diffH = Math.floor(diffMin / 60);
+    if (diffH < 24)   return `Il y a ${diffH}h`;
+    const diffD = Math.floor(diffH / 24);
+    if (diffD < 7)    return `Il y a ${diffD}j`;
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
 }
 
-export default function NotifItem({ notif, onClick, compact = false }) {
-    const isEmail = notif.type === 'EMAIL';
+export default function NotifItem({ notif, onMarquerLue }) {
+    const style   = TYPE_STYLES[notif.type] ?? DEFAULT_STYLE;
+    const isUnread = !notif.lue;
 
     return (
-        <div
-            onClick={() => !notif.lu && onClick && onClick(notif.id)}
-            className={`
-        flex items-start gap-3 px-4 py-3 transition-all cursor-pointer
-        ${notif.lu
-                ? 'bg-white hover:bg-gray-50'
-                : 'bg-blue-50 hover:bg-blue-100 border-l-4 border-[#1565C0]'
-            }
-        ${compact ? 'rounded-lg' : 'border-b border-gray-100 last:border-0'}
-      `}
-        >
-            {/* Icône type */}
-            <div className={`
-        mt-0.5 flex-shrink-0 p-1.5 rounded-full
-        ${notif.lu ? 'bg-gray-100 text-[#546E7A]' : 'bg-blue-100 text-[#1565C0]'}
-      `}>
-                {isEmail
-                    ? <Mail size={14} />
-                    : <Bell size={14} />
-                }
+        <div className={`flex items-start gap-3 p-4 rounded-2xl border transition-all hover:shadow-sm
+                     ${isUnread
+            ? `${style.bg} border-l-4 border-l-[#1B7A5A] border-t-gray-100 border-r-gray-100 border-b-gray-100`
+            : 'bg-white border-gray-100'}`}>
+
+            <div className="mt-1.5 flex-shrink-0">
+                <span className={`inline-block w-2 h-2 rounded-full ${style.dot}`} />
             </div>
 
-            {/* Contenu */}
             <div className="flex-1 min-w-0">
-                <p className={`text-sm leading-snug line-clamp-2
-          ${notif.lu ? 'text-gray-500' : 'text-gray-800 font-medium'}`}>
+                <div className="flex items-center gap-2 mb-1">
+          <span className={`text-xs font-medium px-2 py-0.5 rounded-lg
+                            ${isUnread
+              ? 'bg-[#1B7A5A] text-white'
+              : 'bg-gray-100 text-gray-500'}`}>
+            {style.label}
+          </span>
+                    {isUnread && (
+                        <span className="text-xs font-semibold text-[#1B7A5A]">Nouveau</span>
+                    )}
+                </div>
+                <p className={`text-sm ${isUnread ? 'font-medium text-gray-800' : 'text-gray-500'}`}>
                     {notif.message}
                 </p>
-                <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-[#546E7A]">
-            {formatRelative(notif.dateEnvoi)}
-          </span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium
-            ${notif.lu
-                        ? 'bg-gray-100 text-gray-400'
-                        : 'bg-blue-100 text-[#1565C0]'
-                    }`}>
-            {notif.lu ? 'Lu' : 'Non lu'}
-          </span>
-                </div>
+                <span className="text-xs text-gray-400 mt-1 block">{formatDate(notif.dateEnvoi)}</span>
             </div>
 
-            {/* Pastille non lue */}
-            {!notif.lu && (
-                <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[#1565C0] mt-2" />
+            {isUnread && (
+                <button
+                    onClick={() => onMarquerLue(notif.id)}
+                    className="flex-shrink-0 p-1.5 rounded-lg hover:bg-[#1B7A5A] hover:text-white
+                     text-[#1B7A5A] border border-[#1B7A5A] transition-colors"
+                    title="Marquer comme lue"
+                >
+                    <Check size={13} />
+                </button>
             )}
         </div>
     );
