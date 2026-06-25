@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../../api/axiosConfig";
 import { useAuth } from "../../../context/AuthContext";
-import { Wrench, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Wrench, AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -99,9 +99,10 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[#1B7A5A] hover:bg-[#15634A] disabled:opacity-60 text-white font-medium py-2.5 rounded-lg transition-colors"
+                            className="w-full flex items-center justify-center gap-2 bg-[#1B7A5A] hover:bg-[#15634A] disabled:opacity-60 text-white font-medium py-2.5 rounded-lg transition-colors"
                         >
                             {loading ? "Connexion..." : "Se connecter"}
+                            {!loading && <ArrowRight size={18} />}
                         </button>
                     </form>
 

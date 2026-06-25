@@ -2,6 +2,7 @@
 package ma.gmsi.gmsi_backend.config;
 
 import lombok.RequiredArgsConstructor;
+import ma.gmsi.gmsi_backend.security.JwtAuthenticationEntryPoint;
 import ma.gmsi.gmsi_backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,19 +24,26 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity          // ← nouveau : active @PreAuthorize partout
+@EnableMethodSecurity          // ← active @PreAuthorize partout
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    // ↑ nouveau : injecté pour distinguer 401 (non authentifié) de
+    // 403 (authentifié mais rôle insuffisant, géré par
+    // GlobalExceptionHandler#handleAccesDenie via AccessDeniedException)
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // ← nouveau
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        // ← nouveau : sans token / token invalide → 401 au lieu de 403 par défaut
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
@@ -52,7 +60,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ← nouveau : CORS global pour le frontend React
+    // CORS global pour le frontend React
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

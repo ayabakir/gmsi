@@ -40,6 +40,13 @@ import UserSpecialites from './modules/admin/pages/UserSpecialites'
 // Notifications (Module I3)
 import Notifications from './modules/notifications/pages/Notifications'
 
+// Dashboard (Module I6)
+import DashboardResponsable from './modules/dashboard/pages/DashboardResponsable'
+import DashboardAdmin       from './modules/dashboard/pages/DashboardAdmin'
+
+// Connaissances (Module I4)
+import BaseConnaissances from './modules/connaissances/pages/BaseConnaissances'
+
 export default function App() {
     const { user } = useAuth()
 
@@ -68,6 +75,7 @@ export default function App() {
                 <Route path="stock"                 element={<Stock />} />
                 <Route path="mouvements"            element={<Mouvements />} />
                 <Route path="notifications"         element={<Notifications />} />
+                <Route path="dashboard"             element={<DashboardAdmin />} />
             </Route>
 
             {/* ── RESPONSABLE ── */}
@@ -82,6 +90,7 @@ export default function App() {
                 <Route path="stock"                   element={<Stock />} />
                 <Route path="mouvements"              element={<Mouvements />} />
                 <Route path="notifications"           element={<Notifications />} />
+                <Route path="dashboard"               element={<DashboardResponsable />} />
             </Route>
 
             {/* ── TECHNICIEN ── */}
@@ -92,6 +101,7 @@ export default function App() {
             }>
                 <Route path="missions"      element={<MesMissions />} />
                 <Route path="notifications" element={<Notifications />} />
+                <Route path="connaissances" element={<BaseConnaissances />} />
             </Route>
 
             {/* ── EMPLOYE ── */}
