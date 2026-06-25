@@ -1,170 +1,187 @@
-import { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../../api/axiosConfig'
-import { UserPlus, Pencil, Power, Trash2, Award } from 'lucide-react'
+import { ArrowLeft, Save, UserCog } from 'lucide-react'
 
-const ROLES = ['', 'EMPLOYE', 'TECHNICIEN', 'RESPONSABLE', 'ADMIN']
+const ROLES = ['EMPLOYE', 'TECHNICIEN', 'RESPONSABLE', 'ADMIN']
 
-export default function Users() {
-    const [users, setUsers] = useState([])
-    const [filtreRole, setFiltreRole] = useState('')
-    const [loading, setLoading] = useState(true)
-    const [erreur, setErreur] = useState('')
+export default function UserForm() {
+    const { id } = useParams()        // si présent → mode édition
+    const isEdit = Boolean(id)
     const navigate = useNavigate()
 
-    const chargerUsers = useCallback(async () => {
-        setLoading(true)
+    const [form, setForm] = useState({
+        nom: '',
+        prenom: '',
+        email: '',
+        motDePasse: '',
+        role: 'EMPLOYE',
+    })
+    const [loading, setLoading] = useState(isEdit)
+    const [saving, setSaving] = useState(false)
+    const [erreur, setErreur] = useState('')
+
+    // En mode édition, charger les données de l'utilisateur
+    useEffect(() => {
+        if (!isEdit) return
+        const charger = async () => {
+            try {
+                const { data } = await api.get(`/api/admin/users/${id}`)
+                setForm({
+                    nom: data.nom,
+                    prenom: data.prenom,
+                    email: data.email,
+                    motDePasse: '',           // jamais rempli en édition
+                    role: data.role,
+                })
+            } catch (e) {
+                setErreur("Impossible de charger l'utilisateur")
+            } finally {
+                setLoading(false)
+            }
+        }
+        charger()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id])
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value })
+    }
+
+    const handleSubmit = async () => {
+        setSaving(true)
         setErreur('')
         try {
-            const url = filtreRole
-                ? `/api/admin/users?role=${filtreRole}`
-                : '/api/admin/users'
-            const { data } = await api.get(url)
-            setUsers(data)
+            if (isEdit) {
+                // L'update n'envoie pas le mot de passe
+                await api.put(`/api/admin/users/${id}`, {
+                    nom: form.nom,
+                    prenom: form.prenom,
+                    email: form.email,
+                    role: form.role,
+                })
+            } else {
+                await api.post('/api/admin/users', form)
+            }
+            navigate('/admin/users')
         } catch (e) {
-            setErreur(e.response?.data?.message || "Erreur lors du chargement des utilisateurs")
+            // Affiche le message d'erreur du backend si dispo
+            const msg = e.response?.data?.message
+                || (e.response?.data?.champs
+                    ? Object.values(e.response.data.champs).join(', ')
+                    : "Erreur lors de l'enregistrement")
+            setErreur(msg)
         } finally {
-            setLoading(false)
-        }
-    }, [filtreRole])
-
-    useEffect(() => {
-        chargerUsers()
-    }, [chargerUsers])
-
-    const toggleActif = async (u) => {
-        try {
-            const action = u.actif ? 'desactiver' : 'activer'
-            await api.put(`/api/admin/users/${u.id}/${action}`)
-            chargerUsers()
-        } catch (e) {
-            setErreur(e.response?.data?.message || "Erreur lors du changement de statut")
+            setSaving(false)
         }
     }
 
-    const supprimer = async (u) => {
-        if (!window.confirm(`Supprimer ${u.prenom} ${u.nom} ?`)) return
-        try {
-            await api.delete(`/api/admin/users/${u.id}`)
-            chargerUsers()
-        } catch (e) {
-            setErreur(e.response?.data?.message || "Erreur lors de la suppression")
-        }
+    if (loading) {
+        return <div className="text-slate-400 text-sm">Chargement…</div>
     }
 
     return (
-        <div>
-            {/* En-tête */}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold text-[#1565C0]">Utilisateurs</h1>
-                    <p className="text-[#546E7A] text-sm mt-1">
-                        Gestion des comptes et des rôles
-                    </p>
-                </div>
-                <button
-                    onClick={() => navigate('/admin/users/nouveau')}
-                    className="flex items-center gap-2 bg-[#1565C0] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors"
-                >
-                    <UserPlus size={18} /> Nouvel utilisateur
-                </button>
-            </div>
+        <div className="max-w-xl space-y-6">
 
-            {/* Filtre par rôle */}
-            <div className="mb-4 flex items-center gap-3">
-                <label className="text-sm text-[#546E7A] font-medium">Filtrer par rôle :</label>
-                <select
-                    value={filtreRole}
-                    onChange={(e) => setFiltreRole(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]"
-                >
-                    {ROLES.map((r) => (
-                        <option key={r} value={r}>{r === '' ? 'Tous' : r}</option>
-                    ))}
-                </select>
+            {/* Retour */}
+            <button
+                onClick={() => navigate('/admin/users')}
+                className="flex items-center gap-2 text-slate-500 hover:text-[#1B7A5A] text-sm transition-colors"
+            >
+                <ArrowLeft size={16} /> Retour à la liste
+            </button>
+
+            {/* ── En-tête ── */}
+            <div className="bg-gradient-to-r from-[#E8F5EE] via-[#F2F9F5] to-white rounded-2xl p-6 border border-green-100">
+                <div className="flex items-center gap-3 mb-1">
+                    <UserCog size={22} className="text-[#1B7A5A]" />
+                    <h1 className="text-slate-900 font-semibold text-xl">
+                        {isEdit ? 'Modifier un utilisateur' : 'Nouvel utilisateur'}
+                    </h1>
+                </div>
+                <p className="text-slate-500 text-sm pl-9">
+                    {isEdit ? 'Mettez à jour les informations du compte' : 'Créez un nouveau compte utilisateur'}
+                </p>
             </div>
 
             {erreur && (
-                <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                     {erreur}
                 </div>
             )}
 
-            {/* Tableau */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-[#546E7A] text-left">
-                    <tr>
-                        <th className="px-4 py-3 font-semibold">Nom</th>
-                        <th className="px-4 py-3 font-semibold">Email</th>
-                        <th className="px-4 py-3 font-semibold">Rôle</th>
-                        <th className="px-4 py-3 font-semibold">Statut</th>
-                        <th className="px-4 py-3 font-semibold text-right">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                    {loading ? (
-                        <tr><td colSpan="5" className="px-4 py-6 text-center text-gray-400">Chargement…</td></tr>
-                    ) : users.length === 0 ? (
-                        <tr><td colSpan="5" className="px-4 py-6 text-center text-gray-400">Aucun utilisateur</td></tr>
-                    ) : (
-                        users.map((u) => (
-                            <tr key={u.id} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 font-medium text-gray-800">
-                                    {u.prenom} {u.nom}
-                                </td>
-                                <td className="px-4 py-3 text-gray-600">{u.email}</td>
-                                <td className="px-4 py-3">
-                                        <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-[#1565C0]">
-                                            {u.role}
-                                        </span>
-                                </td>
-                                <td className="px-4 py-3">
-                                    {u.actif ? (
-                                        <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">Actif</span>
-                                    ) : (
-                                        <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Inactif</span>
-                                    )}
-                                </td>
-                                <td className="px-4 py-3">
-                                    <div className="flex items-center justify-end gap-2">
-                                        {u.role === 'TECHNICIEN' && (
-                                            <button
-                                                onClick={() => navigate(`/admin/users/${u.id}/specialites`)}
-                                                title="Spécialités"
-                                                className="text-[#546E7A] hover:text-[#1565C0] transition-colors"
-                                            >
-                                                <Award size={18} />
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={() => navigate(`/admin/users/${u.id}/modifier`)}
-                                            title="Modifier"
-                                            className="text-[#546E7A] hover:text-[#1565C0] transition-colors"
-                                        >
-                                            <Pencil size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => toggleActif(u)}
-                                            title={u.actif ? 'Désactiver' : 'Activer'}
-                                            className={u.actif ? 'text-green-600 hover:text-green-800' : 'text-gray-400 hover:text-gray-600'}
-                                        >
-                                            <Power size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => supprimer(u)}
-                                            title="Supprimer"
-                                            className="text-red-400 hover:text-red-600 transition-colors"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                    </tbody>
-                </table>
+            {/* ── Formulaire ── */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Prénom</label>
+                        <input
+                            name="prenom"
+                            value={form.prenom}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Nom</label>
+                        <input
+                            name="nom"
+                            value={form.nom}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                    <input
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
+                    />
+                </div>
+
+                {/* Mot de passe : seulement en création */}
+                {!isEdit && (
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Mot de passe</label>
+                        <input
+                            name="motDePasse"
+                            type="password"
+                            value={form.motDePasse}
+                            onChange={handleChange}
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
+                        />
+                    </div>
+                )}
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Rôle</label>
+                    <select
+                        name="role"
+                        value={form.role}
+                        onChange={handleChange}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
+                    >
+                        {ROLES.map((r) => (
+                            <option key={r} value={r}>{r}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="pt-2">
+                    <button
+                        onClick={handleSubmit}
+                        disabled={saving}
+                        className="flex items-center gap-2 bg-[#1B7A5A] hover:bg-[#15634A] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
+                    >
+                        <Save size={18} />
+                        {saving ? 'Enregistrement…' : (isEdit ? 'Mettre à jour' : 'Créer')}
+                    </button>
+                </div>
             </div>
         </div>
     )

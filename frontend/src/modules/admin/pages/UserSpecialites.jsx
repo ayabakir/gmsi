@@ -5,6 +5,12 @@ import { ArrowLeft, Plus, Trash2, Award } from 'lucide-react'
 
 const NIVEAUX = ['JUNIOR', 'CONFIRME', 'EXPERT']
 
+const COULEURS_NIVEAU = {
+    JUNIOR:   'bg-blue-50 text-blue-700',
+    CONFIRME: 'bg-amber-50 text-amber-700',
+    EXPERT:   'bg-green-50 text-[#1B7A5A]',
+}
+
 export default function UserSpecialites() {
     const { id } = useParams()        // id du technicien
     const navigate = useNavigate()
@@ -79,42 +85,47 @@ export default function UserSpecialites() {
     }
 
     if (loading) {
-        return <div className="text-gray-400">Chargement…</div>
+        return <div className="text-slate-400 text-sm">Chargement…</div>
     }
 
     return (
-        <div className="max-w-2xl">
+        <div className="max-w-2xl space-y-6">
+
+            {/* Retour */}
             <button
                 onClick={() => navigate('/admin/users')}
-                className="flex items-center gap-2 text-[#546E7A] hover:text-[#1565C0] text-sm mb-4 transition-colors"
+                className="flex items-center gap-2 text-slate-500 hover:text-[#1B7A5A] text-sm transition-colors"
             >
                 <ArrowLeft size={16} /> Retour à la liste
             </button>
 
-            <div className="flex items-center gap-2 mb-1">
-                <Award className="text-[#1565C0]" size={24} />
-                <h1 className="text-2xl font-bold text-[#1565C0]">Spécialités</h1>
+            {/* ── En-tête ── */}
+            <div className="bg-gradient-to-r from-[#E8F5EE] via-[#F2F9F5] to-white rounded-2xl p-6 border border-green-100">
+                <div className="flex items-center gap-3 mb-1">
+                    <Award size={22} className="text-[#1B7A5A]" />
+                    <h1 className="text-slate-900 font-semibold text-xl">Spécialités</h1>
+                </div>
+                <p className="text-slate-500 text-sm pl-9">
+                    Technicien : <span className="font-semibold text-slate-700">{technicien?.prenom} {technicien?.nom}</span>
+                </p>
             </div>
-            <p className="text-[#546E7A] text-sm mb-6">
-                Technicien : <span className="font-semibold">{technicien?.prenom} {technicien?.nom}</span>
-            </p>
 
             {erreur && (
-                <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                     {erreur}
                 </div>
             )}
 
-            {/* Formulaire d'ajout */}
-            <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
-                <h2 className="text-sm font-semibold text-[#546E7A] mb-3">Ajouter une spécialité</h2>
-                <div className="flex items-end gap-3">
-                    <div className="flex-1">
-                        <label className="block text-xs text-[#546E7A] mb-1">Catégorie</label>
+            {/* ── Formulaire d'ajout ── */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Ajouter une spécialité</h2>
+                <div className="flex items-end gap-3 flex-wrap">
+                    <div className="flex-1 min-w-[180px]">
+                        <label className="block text-xs text-slate-500 mb-1">Catégorie</label>
                         <select
                             value={categorieId}
                             onChange={(e) => setCategorieId(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]"
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
                         >
                             {categories.length === 0 && <option value="">Aucune catégorie</option>}
                             {categories.map((c) => (
@@ -123,11 +134,11 @@ export default function UserSpecialites() {
                         </select>
                     </div>
                     <div className="w-40">
-                        <label className="block text-xs text-[#546E7A] mb-1">Niveau</label>
+                        <label className="block text-xs text-slate-500 mb-1">Niveau</label>
                         <select
                             value={niveau}
                             onChange={(e) => setNiveau(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]"
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
                         >
                             {NIVEAUX.map((n) => (
                                 <option key={n} value={n}>{n}</option>
@@ -137,49 +148,51 @@ export default function UserSpecialites() {
                     <button
                         onClick={ajouterSpecialite}
                         disabled={ajout || categories.length === 0}
-                        className="flex items-center gap-2 bg-[#1565C0] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors disabled:opacity-60"
+                        className="flex items-center gap-2 bg-[#1B7A5A] hover:bg-[#15634A] text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
                     >
                         <Plus size={18} /> Ajouter
                     </button>
                 </div>
             </div>
 
-            {/* Liste des spécialités */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-[#546E7A] text-left">
-                    <tr>
-                        <th className="px-4 py-3 font-semibold">Catégorie</th>
-                        <th className="px-4 py-3 font-semibold">Niveau</th>
-                        <th className="px-4 py-3 font-semibold text-right">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                    {specialites.length === 0 ? (
-                        <tr><td colSpan="3" className="px-4 py-6 text-center text-gray-400">Aucune spécialité</td></tr>
-                    ) : (
-                        specialites.map((s) => (
-                            <tr key={s.id} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 font-medium text-gray-800">{s.categorieLibelle}</td>
-                                <td className="px-4 py-3">
-                                        <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-[#1565C0]">
+            {/* ── Liste des spécialités ── */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead>
+                        <tr className="bg-gray-50 text-xs text-slate-600 uppercase">
+                            <th className="px-4 py-3 text-left font-semibold">Catégorie</th>
+                            <th className="px-4 py-3 text-left font-semibold">Niveau</th>
+                            <th className="px-4 py-3 text-right font-semibold">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                        {specialites.length === 0 ? (
+                            <tr><td colSpan="3" className="px-4 py-10 text-center text-slate-400">Aucune spécialité</td></tr>
+                        ) : (
+                            specialites.map((s) => (
+                                <tr key={s.id} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-4 py-3 font-medium text-slate-800">{s.categorieLibelle}</td>
+                                    <td className="px-4 py-3">
+                                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${COULEURS_NIVEAU[s.niveau] ?? 'bg-gray-100 text-gray-600'}`}>
                                             {s.niveau}
                                         </span>
-                                </td>
-                                <td className="px-4 py-3 text-right">
-                                    <button
-                                        onClick={() => supprimerSpecialite(s.id)}
-                                        title="Supprimer"
-                                        className="text-red-400 hover:text-red-600 transition-colors"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                    </tbody>
-                </table>
+                                    </td>
+                                    <td className="px-4 py-3 text-right">
+                                        <button
+                                            onClick={() => supprimerSpecialite(s.id)}
+                                            title="Supprimer"
+                                            className="text-red-400 hover:text-red-600 transition-colors"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     )

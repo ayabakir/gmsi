@@ -40,28 +40,46 @@ import UserSpecialites from './modules/admin/pages/UserSpecialites'
 // Notifications (Module I3)
 import Notifications from './modules/notifications/pages/Notifications'
 
-// Dashboard (Module I6)
+//dashboard (Module I6)
 import DashboardResponsable from './modules/dashboard/pages/DashboardResponsable'
 import DashboardAdmin       from './modules/dashboard/pages/DashboardAdmin'
 
-// Connaissances (Module I4)
+//connaissances (Module I4)
 import BaseConnaissances from './modules/connaissances/pages/BaseConnaissances'
 
-// Audit-paramètre (Module I5)
+//audit-parametre (Module I5)
 import Parametres from './modules/administration/pages/Parametres'
 import AuditLog from './modules/administration/pages/AuditLog'
 
 export default function App() {
     const { user } = useAuth()
 
+    function getRoleHome(role) {
+        switch (role) {
+            case 'ADMIN':       return '/admin/dashboard'
+            case 'RESPONSABLE': return '/responsable/dashboard'
+            case 'TECHNICIEN':  return '/technicien/missions'
+            case 'EMPLOYE':     return '/employe/demandes'
+            default:            return '/login'
+        }
+    }
+
     return (
         <Routes>
+
             {/* ── Page d'accueil (racine, publique) ── */}
             <Route path="/" element={<Home />} />
 
             {/* ── Public ── */}
             <Route path="/login"        element={<Login />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+
+            {/* Redirection racine selon rôle */}
+            <Route path="/" element={
+                user
+                    ? <Navigate to={getRoleHome(user.role)} replace />
+                    : <Navigate to="/login" replace />
+            } />
 
             {/* ── ADMIN ── */}
             <Route path="/admin" element={
@@ -79,9 +97,9 @@ export default function App() {
                 <Route path="stock"                 element={<Stock />} />
                 <Route path="mouvements"            element={<Mouvements />} />
                 <Route path="notifications"         element={<Notifications />} />
-                <Route path="dashboard"             element={<DashboardAdmin />} />
-                <Route path="parametres"            element={<Parametres />} />
-                <Route path="audit"                 element={<AuditLog />} />
+                <Route path="dashboard" element={<DashboardAdmin />} />
+                <Route path="parametres" element={<Parametres />} />
+                <Route path="audit" element={<AuditLog />} />
             </Route>
 
             {/* ── RESPONSABLE ── */}
@@ -96,7 +114,7 @@ export default function App() {
                 <Route path="stock"                   element={<Stock />} />
                 <Route path="mouvements"              element={<Mouvements />} />
                 <Route path="notifications"           element={<Notifications />} />
-                <Route path="dashboard"               element={<DashboardResponsable />} />
+                <Route path="dashboard" element={<DashboardResponsable />} />
             </Route>
 
             {/* ── TECHNICIEN ── */}
