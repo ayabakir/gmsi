@@ -32,6 +32,7 @@ public class DemandeServiceImpl implements DemandeService {
     private final CategorieRepository categorieRepository;
     private final LocalisationRepository localisationRepository;
     private final NotificationService notificationService;
+    private final InterventionRepository interventionRepository;
 
     // ---------------- Employé ----------------
 
@@ -226,6 +227,10 @@ public class DemandeServiceImpl implements DemandeService {
                 .localisationId(d.getLocalisation() != null ? d.getLocalisation().getId() : null)
                 .localisationLibelle(d.getLocalisation() != null ? d.getLocalisation().getLibelle() : null)
                 .dateCreation(d.getDateCreation())
+                .interventionId(
+                        interventionRepository.findByDemandeId(d.getId())
+                                .map(Intervention::getId)
+                                .orElse(null))
                 .build();
     }
 }

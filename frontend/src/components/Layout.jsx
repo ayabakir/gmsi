@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
     LayoutDashboard, Settings, Package, MapPin, Tag, Monitor,
-    LogOut, Users, FileText, Wrench, ScrollText, History, Bell
+    LogOut, Users, FileText, Wrench, ScrollText, History, Bell, Award
 } from 'lucide-react'
 import NotifBadge from '../modules/notifications/components/NotifBadge'
 
@@ -17,6 +17,7 @@ const menuAdmin = [
     { label: 'Mouvements',    path: '/admin/mouvements',    icon: History },
     { label: 'Audit',         path: '/admin/audit',         icon: ScrollText },
     { label: 'Paramètres',    path: '/admin/parametres',    icon: Settings },
+    { label: 'Scores',        path: '/admin/scores',        icon: Award },
     { label: 'Notifications', path: '/admin/notifications', icon: Bell },
 ]
 
@@ -26,11 +27,13 @@ const menuResponsable = [
     { label: 'Interventions', path: '/responsable/interventions', icon: Wrench },
     { label: 'Stock',         path: '/responsable/stock',         icon: Package },
     { label: 'Mouvements',    path: '/responsable/mouvements',    icon: History },
+    { label: 'Scores',        path: '/responsable/scores',        icon: Award },
     { label: 'Notifications', path: '/responsable/notifications', icon: Bell },
 ]
 
 const menuTechnicien = [
     { label: 'Mes missions',  path: '/technicien/missions',      icon: Wrench },
+    { label: 'Mes rapports',  path: '/technicien/rapports',      icon: FileText },
     { label: 'Notifications', path: '/technicien/notifications', icon: Bell },
 ]
 
@@ -63,19 +66,19 @@ export default function Layout() {
         <div className="flex h-screen bg-gray-100">
 
             {/* ── Sidebar ── */}
-            <aside className="w-64 bg-[#1B7A5A] flex flex-col">
+            <aside className="w-64 bg-gradient-to-b from-[#1B7A5A] to-[#15634A] flex flex-col">
 
                 {/* Logo */}
-                <div className="px-6 py-5 border-b border-[#15634A]">
+                <div className="px-5 py-5 border-b border-white/10">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                            <Wrench size={16} color="#1B7A5A" />
+                        <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/15">
+                            <Wrench className="text-white" size={18} />
                         </div>
                         <div>
-                            <h1 className="text-white text-base font-bold tracking-wide leading-none">
+                            <h1 className="text-white text-lg font-bold leading-none tracking-wide">
                                 GMSI
                             </h1>
-                            <p className="text-green-200 text-[10px] mt-0.5 leading-none">
+                            <p className="text-green-100/70 text-[11px] mt-1">
                                 Gestion des Interventions
                             </p>
                         </div>
@@ -92,8 +95,8 @@ export default function Layout() {
                                 `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm
                                  font-medium transition-colors ${
                                     isActive
-                                        ? 'bg-white text-[#1B7A5A]'
-                                        : 'text-green-100 hover:bg-[#15634A] hover:text-white'
+                                        ? 'bg-white text-[#1B7A5A] shadow-sm'
+                                        : 'text-green-50 hover:bg-white/10'
                                 }`
                             }
                         >
@@ -104,12 +107,14 @@ export default function Layout() {
                 </nav>
 
                 {/* User info + logout */}
-                <div className="px-4 py-4 border-t border-[#15634A]">
-                    <p className="text-green-200 text-xs truncate">{user?.email}</p>
-                    <p className="text-white text-xs font-semibold mt-0.5">{user?.role}</p>
+                <div className="px-4 py-4 border-t border-white/10">
+                    <p className="text-green-100/70 text-xs truncate">{user?.email}</p>
+                    <p className="text-white text-xs font-semibold mt-0.5">
+                        {user?.role}
+                    </p>
                     <button
                         onClick={handleLogout}
-                        className="mt-3 flex items-center gap-2 text-green-200
+                        className="mt-3 flex items-center gap-2 text-green-100/80
                                    hover:text-white text-xs transition-colors"
                     >
                         <LogOut size={14} /> Déconnexion
@@ -120,7 +125,7 @@ export default function Layout() {
             {/* ── Contenu principal ── */}
             <div className="flex-1 flex flex-col overflow-hidden">
 
-                {/* Header */}
+                {/* Header — NotifBadge dynamique (Module I3) */}
                 <header className="bg-white border-b border-slate-200 px-6 py-3
                                    flex items-center justify-between">
                     <h2 className="text-slate-500 text-sm font-medium">
@@ -130,10 +135,8 @@ export default function Layout() {
                         </span>
                     </h2>
 
-                    {/* ✅ Cloche — toujours visible */}
-                    <div className="flex items-center">
-                        <NotifBadge />
-                    </div>
+                    {/* Badge dynamique Module I3 */}
+                    <NotifBadge />
                 </header>
 
                 {/* Pages */}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../../api/axiosConfig'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, Save, FilePlus } from 'lucide-react'
 
 const URGENCES = ['BASSE', 'MOYENNE', 'HAUTE', 'CRITIQUE']
 
@@ -77,46 +77,55 @@ export default function DemandeForm() {
         }
     }
 
-    if (loading) return <div className="text-gray-400">Chargement…</div>
+    if (loading) return <div className="text-slate-400 text-sm">Chargement…</div>
 
     return (
-        <div className="max-w-xl">
+        <div className="max-w-xl space-y-6">
+
+            {/* Retour */}
             <button
                 onClick={() => navigate('/employe/demandes')}
-                className="flex items-center gap-2 text-[#546E7A] hover:text-[#1565C0] text-sm mb-4 transition-colors"
+                className="flex items-center gap-2 text-slate-500 hover:text-[#1B7A5A] text-sm transition-colors"
             >
                 <ArrowLeft size={16} /> Retour
             </button>
 
-            <h1 className="text-2xl font-bold text-[#1565C0] mb-1">Nouvelle demande</h1>
-            <p className="text-[#546E7A] text-sm mb-6">Déclarez une panne ou un dysfonctionnement</p>
+            {/* ── En-tête ── */}
+            <div className="bg-gradient-to-r from-[#E8F5EE] via-[#F2F9F5] to-white rounded-2xl p-6 border border-green-100">
+                <div className="flex items-center gap-3 mb-1">
+                    <FilePlus size={22} className="text-[#1B7A5A]" />
+                    <h1 className="text-slate-900 font-semibold text-xl">Nouvelle demande</h1>
+                </div>
+                <p className="text-slate-500 text-sm pl-9">Déclarez une panne ou un dysfonctionnement</p>
+            </div>
 
             {erreur && (
-                <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                     {erreur}
                 </div>
             )}
 
-            <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
+            {/* ── Formulaire ── */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-[#546E7A] mb-1">Description de la panne</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Description de la panne</label>
                     <textarea
                         name="description"
                         value={form.description}
                         onChange={handleChange}
                         rows={3}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]"
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
                         placeholder="Décrivez le problème rencontré…"
                     />
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-[#546E7A] mb-1">Équipement concerné</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Équipement concerné</label>
                     <select
                         name="equipementId"
                         value={form.equipementId}
                         onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]"
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
                     >
                         {equipements.length === 0 && <option value="">Aucun équipement</option>}
                         {equipements.map((eq) => (
@@ -127,12 +136,12 @@ export default function DemandeForm() {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-[#546E7A] mb-1">Niveau d'urgence</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Niveau d'urgence</label>
                         <select
                             name="niveauUrgence"
                             value={form.niveauUrgence}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]"
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
                         >
                             {URGENCES.map((u) => (
                                 <option key={u} value={u}>{u}</option>
@@ -140,12 +149,12 @@ export default function DemandeForm() {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-[#546E7A] mb-1">Localisation <span className="text-gray-400">(optionnel)</span></label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Localisation <span className="text-slate-400">(optionnel)</span></label>
                         <select
                             name="localisationId"
                             value={form.localisationId}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]"
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
                         >
                             <option value="">—</option>
                             {localisations.map((loc) => (
@@ -156,12 +165,12 @@ export default function DemandeForm() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-[#546E7A] mb-1">Catégorie <span className="text-gray-400">(optionnel)</span></label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Catégorie <span className="text-slate-400">(optionnel)</span></label>
                     <select
                         name="categorieId"
                         value={form.categorieId}
                         onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]"
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7A5A] focus:border-transparent transition"
                     >
                         <option value="">—</option>
                         {categories.map((c) => (
@@ -174,7 +183,7 @@ export default function DemandeForm() {
                     <button
                         onClick={handleSubmit}
                         disabled={saving || !form.description || !form.equipementId}
-                        className="flex items-center gap-2 bg-[#1565C0] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors disabled:opacity-60"
+                        className="flex items-center gap-2 bg-[#1B7A5A] hover:bg-[#15634A] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
                     >
                         <Save size={18} />
                         {saving ? 'Envoi…' : 'Envoyer la demande'}
