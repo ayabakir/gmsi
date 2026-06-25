@@ -21,6 +21,8 @@ public class LocalisationResponse {
     private TypeLocalisation type;
     private UUID parentId;
     private String parentLibelle;
+    private String description;
+    private String cheminComplet;
 
     // Optionnel : utilisé uniquement pour /enfants ou /racines avec arborescence
     private List<LocalisationResponse> enfants;

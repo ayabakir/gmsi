@@ -47,6 +47,10 @@ import DashboardAdmin       from './modules/dashboard/pages/DashboardAdmin'
 // Connaissances (Module I4)
 import BaseConnaissances from './modules/connaissances/pages/BaseConnaissances'
 
+// Audit-paramètre (Module I5)
+import Parametres from './modules/administration/pages/Parametres'
+import AuditLog from './modules/administration/pages/AuditLog'
+
 export default function App() {
     const { user } = useAuth()
 
@@ -76,6 +80,8 @@ export default function App() {
                 <Route path="mouvements"            element={<Mouvements />} />
                 <Route path="notifications"         element={<Notifications />} />
                 <Route path="dashboard"             element={<DashboardAdmin />} />
+                <Route path="parametres"            element={<Parametres />} />
+                <Route path="audit"                 element={<AuditLog />} />
             </Route>
 
             {/* ── RESPONSABLE ── */}
