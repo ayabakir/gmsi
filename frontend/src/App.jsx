@@ -7,7 +7,9 @@ import Layout from './components/Layout'
 // Auth
 import Login        from './modules/auth/pages/Login'
 import Unauthorized from './modules/auth/pages/Unauthorized'
-import Register     from './modules/auth/pages/Register'
+
+// Page d'accueil
+import Home from './modules/home/pages/Home'
 
 // Référentiels (Module I1)
 import Categories   from './modules/referentiels/pages/Categories'
@@ -45,14 +47,21 @@ import DashboardAdmin       from './modules/dashboard/pages/DashboardAdmin'
 //connaissances (Module I4)
 import BaseConnaissances from './modules/connaissances/pages/BaseConnaissances'
 
+//audit-parametre (Module I5)
+import Parametres from './modules/administration/pages/Parametres'
+import AuditLog from './modules/administration/pages/AuditLog'
+
 export default function App() {
     const { user } = useAuth()
 
     return (
         <Routes>
+
+            {/* ── Page d'accueil (racine, publique) ── */}
+            <Route path="/" element={<Home />} />
+
             {/* ── Public ── */}
             <Route path="/login"        element={<Login />} />
-            <Route path="/register"     element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
 
             {/* Redirection racine selon rôle */}
@@ -79,6 +88,8 @@ export default function App() {
                 <Route path="mouvements"            element={<Mouvements />} />
                 <Route path="notifications"         element={<Notifications />} />
                 <Route path="dashboard" element={<DashboardAdmin />} />
+                <Route path="parametres" element={<Parametres />} />
+                <Route path="audit" element={<AuditLog />} />
             </Route>
 
             {/* ── RESPONSABLE ── */}

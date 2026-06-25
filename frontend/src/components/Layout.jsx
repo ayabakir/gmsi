@@ -2,8 +2,8 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
-    LayoutDashboard, Settings, Package,
-    MapPin, Tag, Monitor, LogOut, Users, FileText, Wrench
+    LayoutDashboard, Settings, Package, MapPin, Tag, Monitor,
+    LogOut, Users, FileText, Wrench, ScrollText, History, Bell
 } from 'lucide-react'
 import NotifBadge from '../modules/notifications/components/NotifBadge'
 
@@ -14,7 +14,10 @@ const menuAdmin = [
     { label: 'Localisations', path: '/admin/localisations', icon: MapPin },
     { label: 'Équipements',   path: '/admin/equipements',   icon: Monitor },
     { label: 'Stock',         path: '/admin/stock',         icon: Package },
+    { label: 'Mouvements',    path: '/admin/mouvements',    icon: History },
+    { label: 'Audit',         path: '/admin/audit',         icon: ScrollText },
     { label: 'Paramètres',    path: '/admin/parametres',    icon: Settings },
+    { label: 'Notifications', path: '/admin/notifications', icon: Bell },
 ]
 
 const menuResponsable = [
@@ -22,15 +25,18 @@ const menuResponsable = [
     { label: 'Demandes',      path: '/responsable/demandes',      icon: FileText },
     { label: 'Interventions', path: '/responsable/interventions', icon: Wrench },
     { label: 'Stock',         path: '/responsable/stock',         icon: Package },
-    { label: 'Mouvements',    path: '/responsable/mouvements',    icon: Settings },
+    { label: 'Mouvements',    path: '/responsable/mouvements',    icon: History },
+    { label: 'Notifications', path: '/responsable/notifications', icon: Bell },
 ]
 
 const menuTechnicien = [
-    { label: 'Mes missions', path: '/technicien/missions', icon: Wrench },
+    { label: 'Mes missions',  path: '/technicien/missions',      icon: Wrench },
+    { label: 'Notifications', path: '/technicien/notifications', icon: Bell },
 ]
 
 const menuEmploye = [
-    { label: 'Mes demandes', path: '/employe/demandes', icon: FileText },
+    { label: 'Mes demandes',  path: '/employe/demandes',      icon: FileText },
+    { label: 'Notifications', path: '/employe/notifications', icon: Bell },
 ]
 
 function getMenu(role) {
@@ -123,7 +129,11 @@ export default function Layout() {
                             {user?.email}
                         </span>
                     </h2>
-                    <NotifBadge />
+
+                    {/* ✅ Cloche — toujours visible */}
+                    <div className="flex items-center">
+                        <NotifBadge />
+                    </div>
                 </header>
 
                 {/* Pages */}

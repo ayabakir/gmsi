@@ -29,4 +29,7 @@ public class Localisation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_parent")
     private Localisation parent;
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 }
