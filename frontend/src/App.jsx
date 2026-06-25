@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 import Layout from './components/Layout'
 
+import './api/axiosConfig.js'
 // Auth
 import Login        from './modules/auth/pages/Login'
 import Unauthorized from './modules/auth/pages/Unauthorized'

@@ -1,29 +1,29 @@
 // src/modules/notifications/components/NotifBadge.jsx
-import { useEffect, useState } from 'react';
-import { Bell } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
-import { getNonLuesCount } from '../api/notifications.api';
+import { useEffect, useState } from 'react'
+import { Bell } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../context/AuthContext'
+import { getNonLuesCount } from '../api/notifications.api'
 
 export default function NotifBadge() {
-    const { user } = useAuth();
-    const navigate = useNavigate();
-    const [count, setCount] = useState(0);
+    const { user } = useAuth()
+    const navigate = useNavigate()
+    const [count, setCount] = useState(0)
 
     useEffect(() => {
-        if (!user) return;
+        if (!user) return
         const fetchCount = () =>
             getNonLuesCount()
                 .then(data => setCount(data.count ?? 0))
-                .catch(() => {});
+                .catch(() => {})
 
-        fetchCount();
-        const interval = setInterval(fetchCount, 30000);
-        return () => clearInterval(interval);
-    }, [user]);
+        fetchCount()
+        const interval = setInterval(fetchCount, 30000)
+        return () => clearInterval(interval)
+    }, [user])
 
-    const roleBase = user?.role?.toLowerCase();
-    const path = `/${roleBase}/notifications`;
+    const roleBase = user?.role?.toLowerCase()
+    const path = `/${roleBase}/notifications`
 
     return (
         <button
@@ -31,7 +31,6 @@ export default function NotifBadge() {
             className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
             aria-label="Notifications"
         >
-            {/* ✅ Cloche verte sur fond blanc */}
             <Bell size={22} className="text-[#1B7A5A]" />
             {count > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold
@@ -40,5 +39,5 @@ export default function NotifBadge() {
         </span>
             )}
         </button>
-    );
+    )
 }
